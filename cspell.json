@@ -17,6 +17,9 @@
       "iscsi",
       "ovmf",
       "uefi",
-      "vrti"
+      "vrti",
+      "swapoff",
+      "swapfile",
+      "dphys"
   ]
 }

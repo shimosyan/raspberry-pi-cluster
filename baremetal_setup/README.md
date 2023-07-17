@@ -42,6 +42,18 @@ MicroSD カードを用意し、PCに接続後 Raspberry Pi Imager を起動し�
 
 そのうち、DHCP 帯に割り当てられるので、そのIPを特定して SSH で接続します。
 
+### Swap の無効化
+
+Raspberry PI で Swap を使うと、MicroSD カードの寿命を減らすだけなので無効化します。
+
+以下のコマンドを実行します。
+
+```sh
+sudo dphys-swapfile swapoff
+sudo systemctl stop dphys-swapfile
+sudo systemctl disable dphys-swapfile
+```
+
 ### Proxmox のインストール
 
 [公式リポジトリ](https://github.com/pimox/pimox7)の手順を参考に次のとおりにコマンドを入力します。
