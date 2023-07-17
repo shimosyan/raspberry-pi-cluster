@@ -46,11 +46,15 @@ MicroSD カードを用意し、PCに接続後 Raspberry Pi Imager を起動し�
 
 [Miro](https://miro.com/app/board/uXjVOnZ07F0=/?share_link_id=250765172883)の構成図通りにIPアドレスをアドレスを指定します。
 
+ここでは、`raspi-8gb-1` を例に入力します。ホスト名やIPアドレスは適宜置き換えてください。
+
 L3スイッチはDNSサーバー機能を持たないため、DNS サーバーはルーターを指定します。
 
-```sh:/etc/dhcpcd.conf
+```sh
+#/etc/dhcpcd.conf
+
 interface eth0
-static ip_address=192.168.6.x/24
+static ip_address=192.168.6.17/24
 static routers=192.168.6.1
 static domain_name_servers=192.168.2.1
 ```
@@ -59,9 +63,38 @@ static domain_name_servers=192.168.2.1
 
 続いて、ホストを設定します。hosts の IP アドレスを先の手順で IP アドレスを固定したものに書き換えます。
 
-```sh:/etc/hosts
+```sh
+#/etc/hosts
+
 #127.0.1.1      raspi-8gb-1
 192.168.6.n     raspi-8gb-1
 ```
 
 ### 再起動
+
+一旦再起動します。
+
+```sh
+sudo reboot
+```
+
+## Proxmox のインストール
+
+[公式リポジトリ](https://github.com/pimox/pimox7)の手順を参考に次のとおりにコマンドを入力します。
+
+```sh
+sudo -s
+echo "deb https://raw.githubusercontent.com/pimox/pimox7/master/ dev/" > /etc/apt/sources.list.d/pimox.list
+curl https://raw.githubusercontent.com/pimox/pimox7/master/KEY.gpg | apt-key add -
+apt update
+```
+
+Proxmoxをインストールする。
+
+```sh
+apt install pve-manager
+```
+
+インストールするアプリケーションは公式手順と異なりますが、[こちらの記事](https://qiita.com/wancom/items/b62ac44e6c9f0d1c4048#64bit%E7%89%88%E3%81%AEraspberrypi-os%E3%82%92%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%99%E3%82%8B)を参考にしました。
+
+途中、インストールに関してプロンプトが立ち上がりますが、`No configuration` を選択します。
