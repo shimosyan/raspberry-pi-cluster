@@ -67,7 +67,7 @@ static domain_name_servers=192.168.2.1
 #/etc/hosts
 
 #127.0.1.1      raspi-8gb-1
-192.168.6.n     raspi-8gb-1
+192.168.6.17    raspi-8gb-1
 ```
 
 ### 再起動
