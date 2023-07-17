@@ -48,7 +48,7 @@ MicroSD カードを用意し、PCに接続後 Raspberry Pi Imager を起動し�
 
 L3スイッチはDNSサーバー機能を持たないため、DNS サーバーはルーターを指定します。
 
-```/etc/dhcpcd.conf
+```sh:/etc/dhcpcd.conf
 interface eth0
 static ip_address=192.168.6.x/24
 static routers=192.168.6.1
@@ -59,7 +59,7 @@ static domain_name_servers=192.168.2.1
 
 続いて、ホストを設定します。hosts の IP アドレスを先の手順で IP アドレスを固定したものに書き換えます。
 
-```/etc/hosts
+```sh:/etc/hosts
 #127.0.1.1      raspi-8gb-1
 192.168.6.n     raspi-8gb-1
 ```
