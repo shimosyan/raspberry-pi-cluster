@@ -13,6 +13,7 @@
       "PUBKEY",
       "iface",
       "inet",
-      "nameserver"
+      "nameserver",
+      "iscsi"
   ]
 }
