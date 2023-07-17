@@ -1,5 +1,7 @@
 # Proxmox Cluster Setup
 
+Proxmox にログインします。
+
 ## アップデート
 
 ### リポジトリの設定
