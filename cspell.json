@@ -10,6 +10,9 @@
       "imager",
       "dhcpcd",
       "keyserver",
-      "PUBKEY"
+      "PUBKEY",
+      "iface",
+      "inet",
+      "nameserver"
   ]
 }

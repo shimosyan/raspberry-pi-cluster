@@ -1,5 +1,7 @@
 # Raspberry PI Setup
 
+この環境では Raspberry PI OS Bullseye に準拠しています。
+
 ## イメージの書き込み
 
 ### アプリケーションのインストール
@@ -36,89 +38,41 @@ MicroSD カードを用意し、PCに接続後 Raspberry Pi Imager を起動し�
 
 ## OS の設定
 
-### ネットワークの設定
+イメージの書き込みが終わったら、Raspberry Pi を起動し LAN に接続します。
 
-イメージの書き込みが終わったら、Raspberry Piを起動しLANGに接続します。
+そのうち、DHCP 帯に割り当てられるので、そのIPを特定して SSH で接続します。
 
-そのうち、DHCP帯に割り当てられるので、そのIPを特定してSSHで接続します。
-
-接続できたら、まずはIPアドレスを設定します。
-
-[Miro](https://miro.com/app/board/uXjVOnZ07F0=/?share_link_id=250765172883)の構成図通りにIPアドレスをアドレスを指定します。
-
-ここでは、以下の例の通りに入力します。ホスト名やIPアドレスは適宜置き換えてください。
-
-- ホスト名: `raspi-8gb-1`
-- IPアドレス: `192.168.6.33`
-
-L3スイッチはDNSサーバー機能を持たないため、DNS サーバーはルーターを指定します。
-
-```sh
-#/etc/dhcpcd.conf
-
-interface eth0
-static ip_address=192.168.6.33/24
-static routers=192.168.6.1
-static domain_name_servers=192.168.2.1
-```
-
-### ホストの設定
-
-続いて、ホストを設定します。hosts の IP アドレスを先の手順で IP アドレスを固定したものに書き換えます。
-
-```sh
-#/etc/hosts
-
-#127.0.1.1      raspi-8gb-1
-192.168.6.33    raspi-8gb-1
-```
-
-### 再起動
-
-一旦再起動します。
-
-```sh
-sudo reboot
-```
-
-## Proxmox のインストール
+### Proxmox のインストール
 
 [公式リポジトリ](https://github.com/pimox/pimox7)の手順を参考に次のとおりにコマンドを入力します。
 
 ```sh
 sudo -s
-echo "deb https://raw.githubusercontent.com/pimox/pimox7/master/ dev/" > /etc/apt/sources.list.d/pimox.list
-curl https://raw.githubusercontent.com/pimox/pimox7/master/KEY.gpg | apt-key add -
-apt update
+curl https://raw.githubusercontent.com/pimox/pimox7/master/RPiOS64-IA-Install.sh > RPiOS64-IA-Install.sh
+chmod +x RPiOS64-IA-Install.sh
+./RPiOS64-IA-Install.sh
 ```
 
-Proxmoxをインストールする。
+プロンプトでは次のように入力します。
 
-```sh
-apt install pve-manager
-```
+途中で、ホスト名や IP アドレスに関する質問が来ますが、[Miro](https://miro.com/app/board/uXjVOnZ07F0=/?share_link_id=250765172883)の構成図通りに IP アドレスをアドレスを指定します。
 
-インストールするアプリケーションは公式手順と異なりますが、[こちらの記事](https://qiita.com/wancom/items/b62ac44e6c9f0d1c4048#64bit%E7%89%88%E3%81%AEraspberrypi-os%E3%82%92%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%99%E3%82%8B)を参考にしました。
+ここでは、以下の例の通りに入力します。ホスト名や IP アドレスは適宜置き換えてください。
 
-途中、インストールに関してプロンプトが立ち上がります。
+- ホスト名: `raspi-8gb-1`
+- IPアドレス: `192.168.6.33`
 
-OpenZFS のライセンス許諾確認画面では`OK`を選択します。
+|Question|Value|
+|---|---|
+|Enter new hostname|`raspi-8gb-1`|
+|Enter new static IP and NETMASK|`192.168.6.33/24`|
+|Is 192.168.6.1 the correct gateway ?|`Y`|
+|YOU ARE OKAY WITH THESE CHANGES ? YOUR DECLARATIONS ARE CORRECT ? CONTINUE ?|`Y`|
+|New password|`root パスワードを新規で用意`|
 
-続いて、Postfix の設定画面になりますが、メールの送信は一旦しないため `No configuration` を選択します。
+インストールが終わったら自動で再起動されます。
 
-インストールが終わったら再起動します。
-
-## Proxmox の設定
-
-### root パスワードの設定
-
-Proxmox で利用する root ユーザーのパスワードを設定します。
-
-```sh
-sudo passwd
-```
-
-### Proxmox へのログイン
+## Proxmox へのログイン
 
 `https://192.168.6.33:8006/` にアクセスします。
 
@@ -134,3 +88,7 @@ Realm は `Linux PAM standard authentication` を選択してください。
 最後に Login をクリックすれば Proxmox にログインできるはずです。
 
 有効なサブスクリプションがないというアラートが出ますが、気にせず OK で閉じてください。
+
+## 参考資料
+
+- <https://qiita.com/wancom/items/c6b5ca66ab421d696beb>
