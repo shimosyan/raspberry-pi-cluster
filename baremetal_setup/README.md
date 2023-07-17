@@ -33,3 +33,35 @@ MicroSD カードを用意し、PCに接続後 Raspberry Pi Imager を起動し�
 |キーボードレイアウト|`JP`|
 
 ここまで終わったら、MicroSD カードへの書き込みを実行します。
+
+## OS の設定
+
+### ネットワークの設定
+
+イメージの書き込みが終わったら、Raspberry Piを起動しLANGに接続します。
+
+そのうち、DHCP帯に割り当てられるので、そのIPを特定してSSHで接続します。
+
+接続できたら、まずはIPアドレスを設定します。
+
+[Miro](https://miro.com/app/board/uXjVOnZ07F0=/?share_link_id=250765172883)の構成図通りにIPアドレスをアドレスを指定します。
+
+L3スイッチはDNSサーバー機能を持たないため、DNS サーバーはルーターを指定します。
+
+```/etc/dhcpcd.conf
+interface eth0
+static ip_address=192.168.6.x/24
+static routers=192.168.6.1
+static domain_name_servers=192.168.2.1
+```
+
+### ホストの設定
+
+続いて、ホストを設定します。hosts の IP アドレスを先の手順で IP アドレスを固定したものに書き換えます。
+
+```/etc/hosts
+#127.0.1.1      raspi-8gb-1
+192.168.6.n     raspi-8gb-1
+```
+
+### 再起動
