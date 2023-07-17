@@ -6,6 +6,10 @@
       "shimosyan",
       "baremetal",
       "raspi",
-      "dhcpcd"
+      "pimox",
+      "imager",
+      "dhcpcd",
+      "keyserver",
+      "PUBKEY"
   ]
 }
