@@ -46,7 +46,10 @@ MicroSD カードを用意し、PCに接続後 Raspberry Pi Imager を起動し�
 
 [Miro](https://miro.com/app/board/uXjVOnZ07F0=/?share_link_id=250765172883)の構成図通りにIPアドレスをアドレスを指定します。
 
-ここでは、`raspi-8gb-1` を例に入力します。ホスト名やIPアドレスは適宜置き換えてください。
+ここでは、以下の例の通りに入力します。ホスト名やIPアドレスは適宜置き換えてください。
+
+- ホスト名: `raspi-8gb-1`
+- IPアドレス: `192.168.6.33`
 
 L3スイッチはDNSサーバー機能を持たないため、DNS サーバーはルーターを指定します。
 
@@ -54,7 +57,7 @@ L3スイッチはDNSサーバー機能を持たないため、DNS サーバー�
 #/etc/dhcpcd.conf
 
 interface eth0
-static ip_address=192.168.6.17/24
+static ip_address=192.168.6.33/24
 static routers=192.168.6.1
 static domain_name_servers=192.168.2.1
 ```
@@ -67,7 +70,7 @@ static domain_name_servers=192.168.2.1
 #/etc/hosts
 
 #127.0.1.1      raspi-8gb-1
-192.168.6.17    raspi-8gb-1
+192.168.6.33    raspi-8gb-1
 ```
 
 ### 再起動
@@ -117,7 +120,7 @@ sudo passwd
 
 ### Proxmox へのログイン
 
-`https://192.168.0.11:8006/` にアクセスします。
+`https://192.168.6.33:8006/` にアクセスします。
 
 自己署名証明書なのでアクセス時に警告画面がでますが、そのまま気にせすアクセスします。
 
@@ -125,9 +128,9 @@ sudo passwd
 
 root アカウントでログインしましょう。
 
-User nameにrootを、Passwordに先ほど設定したパスワードを入力します。
-RealmはLinux PAM standard authenticationを選択してください。
+User name に `root` を、Password に先ほど設定したパスワードを入力します。
+Realm は `Linux PAM standard authentication` を選択してください。
 
-最後にLoginをクリックすればProxmoxにログインできるはずです。
+最後に Login をクリックすれば Proxmox にログインできるはずです。
 
-有効なサブスクリプションがないというアラートが出ますが、気にせずOKで閉じてください。
+有効なサブスクリプションがないというアラートが出ますが、気にせず OK で閉じてください。
