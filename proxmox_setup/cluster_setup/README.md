@@ -56,6 +56,8 @@ Synology の NAS からパッケージマネージャー経由で、`SAN Manager
 
 `SAN Manager` を開いて、新規 LUN を作成します。使用できる容量はここで指定できます。
 
+LUN はゲスト OS ごとに分けて作成することをおすすめします。
+
 作成した LUN に対して、iSCSI Target を割り当てます。
 
 iSCSI Target を作成したら、編集→詳細から「複数の iSCSI ターゲットで複数セッションを許可する」をONにします。
