@@ -5,6 +5,7 @@
       "markdownlint",
       "shimosyan",
       "baremetal",
-      "raspi"
+      "raspi",
+      "dhcpcd"
   ]
 }
