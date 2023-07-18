@@ -52,7 +52,9 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys KEY_ID
 
 Proxmox の内部データ保存用に NFS で接続します。
 
-Synology のコントロールパネルから「共有フォルダ」を開き、新しい共有フォルダを作成します。
+Synology のコントロールパネルから「共有フォルダ」を開き、以下の新しい共有フォルダを作成します。
+
+- `proxmox`
 
 このとき、ゴミ箱は無効にします。
 
@@ -86,8 +88,8 @@ Proxmox の内部データ保存用の NFS を設定します。
 
 - ID: 識別しやすい任意の文字列
 - サーバ: NAS の IP アドレス
-- Export: `/volume1/共有フォルダ名`
-- 内容: ISO イメージのみ選択
+- Export: `/volume1/proxmox`
+- 内容: すべて選択
 
 ここまで入力して OK をクリックします。
 
