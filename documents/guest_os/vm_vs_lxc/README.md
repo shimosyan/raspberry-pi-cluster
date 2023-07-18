@@ -1,4 +1,4 @@
-# Guest OS
+# VM VS LXC
 
 ## Proxmox で扱える仮想環境の違い
 
