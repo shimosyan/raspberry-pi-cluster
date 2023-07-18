@@ -20,6 +20,19 @@
       "vrti",
       "swapoff",
       "swapfile",
-      "dphys"
+      "dphys",
+      "rootfs",
+      "cloudimg",
+      "vmbr",
+      "qume",
+      "virtio",
+      "efidisk",
+      "qcow",
+      "efitype",
+      "importdisk",
+      "scsihw",
+      "ostype",
+      "cloudinit",
+      "ciuser"
   ]
 }
