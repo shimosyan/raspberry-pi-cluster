@@ -48,6 +48,8 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys KEY_ID
 
 ## ストレージの追加
 
+当環境では Synology DS1621+ の NAS を使用します。
+
 ### NAS の設定(1)
 
 Proxmox の内部データ保存用に NFS で接続します。
@@ -86,7 +88,7 @@ Proxmox の内部データ保存用の NFS を設定します。
 
 設定ダイアログが表示されるので以下の通りに入力します。
 
-- ID: 識別しやすい任意の文字列
+- ID: `synology-nfs`
 - サーバ: NAS の IP アドレス
 - Export: `/volume1/proxmox`
 - 内容: すべて選択
@@ -101,7 +103,7 @@ Proxmox の内部データ保存用の NFS を設定します。
 
 設定ダイアログが表示されるので以下の通りに入力します。
 
-- ID: 識別しやすい任意の文字列
+- ID: `synology-iscsi`
 - Portal: NAS の IP アドレス
 - Target: NAS で設定した iSCSI Target の IQN
 

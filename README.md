@@ -17,4 +17,5 @@ Raspberry PI Cluster による自宅サーバーの運用リポジトリです�
     - [manual_setup](./documents/guest_os/virtual_machine_setup/manual_setup/README.md): Proxmox 上で仮想マシンを手動でセットアップ手順です。
     - [cloud_init_setup](./documents/guest_os/virtual_machine_setup/cloud_init_setup/README.md): Proxmox 上で仮想マシンを Cloud-Init を使用してセットアップ手順です。
   - Linux Containers
-    - [linux_container_initialize](./documents/guest_os/linux_container_initialize/README.md): LXC のセットアップ手順です。
+    - [linux_container_initialize](./documents/guest_os/linux_container/linux_container_initialize/README.md): LXC のセットアップ準備手順です。
+    - [proxmox_cloudflare_tunnel_setup](./documents/guest_os/linux_container/proxmox_cloudflare_tunnel_setup/README.md): LXC を使用して Proxmox を Cloudflare Tunnel 経由で外部公開する方法です。
