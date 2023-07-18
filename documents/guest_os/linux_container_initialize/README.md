@@ -1,6 +1,6 @@
-# Linux Container Setup
+# Linux Container Initialize
 
-この手順は Linux をコンテナイメージでセットアップするための方法です。
+この手順は Linux をコンテナイメージでセットアップするための準備に必要な方法です。
 
 ## OS イメージの追加
 
