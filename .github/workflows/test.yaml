@@ -17,8 +17,10 @@ jobs:
           go-version: '1.19'
           check-latest: true
 
-      - name: Terraform Test
+      - name: Provider Install
         run: |
+          git clone https://github.com/shimosyan/terraform-provider-proxmox.git
+          cd terraform-provider-proxmox
           go install github.com/Telmate/terraform-provider-proxmox/cmd/terraform-provider-proxmox
           ls -al
         env:
