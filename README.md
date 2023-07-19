@@ -4,7 +4,15 @@ Raspberry PI Cluster による自宅サーバーの運用リポジトリです�
 
 各マニュアルから備忘録まで含みます。
 
+## 注意事項
+
+本リポジトリに記載の資料は[構成図](https://miro.com/app/board/uXjVOnZ07F0=/?share_link_id=902050965289)と対になっています。記述に齟齬がある場合は、本リポジトリではなく構成図を優先します。
+
 ## ドキュメント目次
+
+本環境を構築するために必要な手順をまとめた資料です。
+
+`(memo)` と付与されているものは本手順とは関係がない参考資料となります。
 
 - [baremetal_setup](./documents/baremetal_setup/README.md): 素の Raspberry PI を構築して Proxmox をインストール、起動するまでの手順です。
 - Proxmox
@@ -14,8 +22,11 @@ Raspberry PI Cluster による自宅サーバーの運用リポジトリです�
 - GuestOS
   - [vm_vs_lxc](./documents/guest_os/vm_vs_lxc/README.md): Virtual Machine か Linux Containers どちらに優位性があるかをまとめた資料です。
   - Virtual Machine
-    - [manual_setup](./documents/guest_os/virtual_machine_setup/manual_setup/README.md): Proxmox 上で仮想マシンを手動でセットアップ手順です。
-    - [cloud_init_setup](./documents/guest_os/virtual_machine_setup/cloud_init_setup/README.md): Proxmox 上で仮想マシンを Cloud-Init を使用してセットアップ手順です。
+    - *(memo)* [manual_setup](./documents/guest_os/virtual_machine_setup/manual_setup/README.md): Proxmox 上で仮想マシンを手動でセットアップ手順です。
+    - *(memo)* [cloud_init_setup](./documents/guest_os/virtual_machine_setup/cloud_init_setup/README.md): Proxmox 上で仮想マシンを Cloud-Init を使用してセットアップ手順です。
   - Linux Containers
     - [linux_container_initialize](./documents/guest_os/linux_container/linux_container_initialize/README.md): LXC のセットアップ準備手順です。
+- Service
+  - ここから先の資料は、Proxmox 上に展開されたServiceに関する資料となります。
+  - Internal
     - [proxmox_cloudflare_tunnel_setup](./documents/guest_os/linux_container/proxmox_cloudflare_tunnel_setup/README.md): LXC を使用して Proxmox を Cloudflare Tunnel 経由で外部公開する方法です。
