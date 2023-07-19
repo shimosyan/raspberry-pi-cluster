@@ -27,15 +27,16 @@ jobs:
         with:
           terraform_version: 1.3.4
 
-      - name: Terraform Init
+      - name: Proxmox Terraform Init
         run: terraform init
+        working-directory: ./proxmox
 
-      - name: Terraform Format
+      - name: Proxmox Terraform Format
         id: fmt
         run: terraform fmt -recursive -check
-        continue-on-error: true
+        working-directory: ./proxmox
 
-      - name: Terraform Plan
+      - name: Proxmox Terraform Plan
         id: plan
         run: terraform plan -parallelism=1 -no-color -input=false
-        continue-on-error: true
+        working-directory: ./proxmox
