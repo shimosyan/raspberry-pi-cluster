@@ -21,6 +21,7 @@ jobs:
         run: |
           git clone https://github.com/Telmate/terraform-provider-proxmox.git
           ls -al
+          export GO111MODULE=on
           cd terraform-provider-proxmox
           ls -al
           go install github.com/Telmate/terraform-provider-proxmox/cmd/terraform-provider-proxmox
