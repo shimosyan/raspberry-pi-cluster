@@ -60,12 +60,21 @@ http {
         gzip on;
 
         # proxmox サーバー向けの設定
+
+        # ロードバランシングを有効にする
+        upstream proxmox {
+                ip_hash;
+                server 192.168.6.33:8006;
+                server 192.168.6.34:8006;
+                server 192.168.6.35:8006;
+        }
+
         server {
                 listen 80;
                 server_name _;
                 location / {
                         proxy_set_header Host $http_host;
-                        proxy_pass https://192.168.6.33:8006;
+                        proxy_pass https://proxmox;
 
                         # Webコンソールが動作するよう以下も記述する
                         proxy_http_version 1.1;

@@ -80,7 +80,7 @@ chmod +x RPiOS64-IA-Install.sh
 |Enter new static IP and NETMASK|`192.168.6.33/24`|
 |Is 192.168.6.1 the correct gateway ?|`Y`|
 |YOU ARE OKAY WITH THESE CHANGES ? YOUR DECLARATIONS ARE CORRECT ? CONTINUE ?|`Y`|
-|New password|`root パスワードを新規で用意`|
+|New password|`root パスワード` Proxmox のログインで使用します。すでに Proxmox が立ち上がっている環境がある場合は、こちらと同じものを設定します（管理画面を負荷分散しているためどのノードに当たるかわからなくなるため）|
 
 インストールが終わったら自動で再起動されます。
 
