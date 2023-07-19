@@ -5,30 +5,37 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      PM_API_TOKEN_ID: ${{ secrets.PM_API_TOKEN_ID }}
+      PM_API_TOKEN_SECRET: ${{ secrets.PM_API_TOKEN_SECRET }}
+      PM_HTTP_HEADERS: CF-Access-Client-Id,${{ secrets.CF_ACCESS_CLIENT_ID }},CF-Access-Client-Secret,${{ secrets.CF_ACCESS_CLIENT_SECRET }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Setup Go
-        uses: actions/setup-go@v3
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          go-version: '1.19'
-          check-latest: true
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.3.4
 
-      - name: Provider Install
-        run: |
-          git clone https://github.com/shimosyan/terraform-provider-proxmox.git
-          cd terraform-provider-proxmox
-          make
-          mkdir -p ~/.terraform.d/plugins/registry.example.com/shimosyan/proxmox/1.0.0/ubuntu
-          cp bin/terraform-provider-proxmox ~/.terraform.d/plugins/registry.example.com/shimosyan/proxmox/1.0.0/ubuntu/
-
       - name: Terraform Init
         run: terraform init
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -recursive -check
+        continue-on-error: true
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -parallelism=1 -no-color -input=false
+        continue-on-error: true
