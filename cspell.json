@@ -33,6 +33,9 @@
       "scsihw",
       "ostype",
       "cloudinit",
-      "ciuser"
+      "ciuser",
+      "sendfile",
+      "nopush",
+      "cloudflared"
   ]
 }
