@@ -80,18 +80,6 @@ qm set 9000 --nameserver 192.168.2.1 --keyboard ja --ciuser owner
 qm template 9000
 ```
 
-```sh
-sudo apt install -y qemu-guest-agent
-```
-
-```sh
-sudo systemctl start qemu-guest-agent
-```
-
-```sh
-sudo systemctl enable qemu-guest-agent
-```
-
 ## VM テンプレートのクローン
 
 これでテンプレートができたので、VM 本体を作成します。
@@ -107,3 +95,11 @@ sudo systemctl enable qemu-guest-agent
 ## VM の起動
 
 これで VM が起動できます。初回はインストールなどが走るためコンソールから使用できるのは少し時間がかかります。
+
+起動できたら、以下のコマンドを実行して QEMU エージェントを起動し、Proxmox 側で監視できるようにします。
+
+```sh
+sudo apt install -y qemu-guest-agent
+sudo systemctl start qemu-guest-agent
+sudo systemctl enable qemu-guest-agent
+```
