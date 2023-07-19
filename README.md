@@ -29,4 +29,4 @@ Raspberry PI Cluster による自宅サーバーの運用リポジトリです�
 - Service
   - ここから先の資料は、Proxmox 上に展開されたServiceに関する資料となります。
   - Internal
-    - [proxmox_cloudflare_tunnel_setup](./documents/guest_os/linux_container/proxmox_cloudflare_tunnel_setup/README.md): LXC を使用して Proxmox を Cloudflare Tunnel 経由で外部公開する方法です。
+    - [internal_cloudflare_tunnel_setup](./documents/service//internal//internal_cloudflare_tunnel_setup/README.md): LXC を使用して Proxmox 及び NAS など内部サービスを Cloudflare Tunnel 経由で外部公開する方法です。

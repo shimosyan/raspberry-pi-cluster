@@ -14,7 +14,7 @@ MicroSD カードを用意し、PCに接続後 Raspberry Pi Imager を起動し�
 
 |項目|選択・設定値|
 |---|---|
-|OS|Raspberry PI OS Lite **(64-bit)**|
+|OS|Raspberry PI OS Lite ***(64-bit)***|
 |ストレージ|挿入したMicroSDを選択|
 
 続いて、画面右下の歯車マークのボタンから次のように詳細な設定を実施します。
@@ -80,7 +80,9 @@ chmod +x RPiOS64-IA-Install.sh
 |Enter new static IP and NETMASK|`192.168.6.33/24`|
 |Is 192.168.6.1 the correct gateway ?|`Y`|
 |YOU ARE OKAY WITH THESE CHANGES ? YOUR DECLARATIONS ARE CORRECT ? CONTINUE ?|`Y`|
-|New password|`root パスワード` Proxmox のログインで使用します。すでに Proxmox が立ち上がっている環境がある場合は、こちらと同じものを設定します（管理画面を負荷分散しているためどのノードに当たるかわからなくなるため）|
+|New password|`root パスワード` `※`|
+
+`※ Proxmox のログインで使用します。すでに Proxmox が立ち上がっている環境がある場合は、こちらと同じものを設定します（管理画面を負荷分散しているためどのノードに当たるかわからなくなるため）`
 
 インストールが終わったら自動で再起動されます。
 
