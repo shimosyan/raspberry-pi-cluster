@@ -24,11 +24,11 @@ provider "proxmox" {
 }
 
 resource "proxmox_lxc" "basic" {
-  target_node  = "pve"
+  target_node  = "raspi-8gb-1"
   hostname     = "lxc-basic"
-  ostemplate   = "synology-nfs:vztmpl/ubuntu-jammy-arm64-default.tar.gz"
-  password     = "BasicLXCContainer"
+  ostemplate   = "synology-nfs:vztmpl/ubuntu-jammy-arm64-default.tar.xz"
   unprivileged = true
+  memory       = 128
 
   // Terraform will crash without rootfs defined
   rootfs {
