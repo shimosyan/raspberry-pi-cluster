@@ -1,0 +1,11 @@
+.DS_Store
+
+# terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+**/.terraform/*
+
+# secret
+secret.sh
+.secret
