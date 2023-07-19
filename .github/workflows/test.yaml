@@ -23,7 +23,7 @@ jobs:
           ls -al
           cd terraform-provider-proxmox
           ls -al
-          go install github.com/Telmate/terraform-provider-proxmox/cmd/terraform-provider-proxmox
+          go install github.com/shimosyan/terraform-provider-proxmox/cmd/terraform-provider-proxmox
           ls -al
         env:
           GO111MODULE: 'on'
