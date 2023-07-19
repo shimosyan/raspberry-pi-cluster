@@ -12,15 +12,14 @@
 |---|---|---|
 |全般|ノード|VM を設置したいノード|
 |全般|VM ID|デフォルトのまま|
-|全般|名前|`proxmox-cloudflare`|
+|全般|名前|`cloudflare-dev`|
 |全般|パスワード|root パスワード。1Password に保管|
-|全般|名前|`proxmox-cloudflare`|
 |テンプレート|ストレージ|[linux_container_initialize](./documents/guest_os/linux_container/linux_container_initialize/README.md) でテンプレートを保存したストレージ|
 |テンプレート|テンプレート|[linux_container_initialize](./documents/guest_os/linux_container/linux_container_initialize/README.md) で保存したテンプレート|
 |ディスク|ストレージ|NAS を選択|
-|ディスク|ディスクサイズ|`32GB`|
+|ディスク|ディスクサイズ|`8GB`|
 |CPU|コア|`1`|
-|メモリ|メモリ(MiB)|`512`|
+|メモリ|メモリ(MiB)|`256`|
 |メモリ|スワップ(MiB)|`0`|
 |ネットワーク|IPv4/CIDR|`192.168.6.xxx/24`|
 |ネットワーク|ゲートウェイ(IPv4)|`192.168.6.1`|
@@ -60,6 +59,7 @@ http {
 
         gzip on;
 
+        # proxmox サーバー向けの設定
         server {
                 listen 80;
                 server_name _;
@@ -68,6 +68,21 @@ http {
                         proxy_pass https://192.168.6.33:8006;
 
                         # Webコンソールが動作するよう以下も記述する
+                        proxy_http_version 1.1;
+                        proxy_set_header Connection $http_connection;
+                        proxy_set_header Origin http://$host;
+                        proxy_set_header Upgrade $http_upgrade;
+                }
+        }
+
+        # NAS 向けの設定
+        server {
+                listen 81;
+                server_name _;
+                location / {
+                        proxy_set_header Host $http_host;
+                        proxy_pass https://192.168.6.21:5101;
+
                         proxy_http_version 1.1;
                         proxy_set_header Connection $http_connection;
                         proxy_set_header Origin http://$host;
