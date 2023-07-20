@@ -1,9 +1,9 @@
-name: test
+name: Test
 on:
   push:
 
 jobs:
-  test:
+  terraform:
     runs-on: ubuntu-latest
     env:
       PM_API_TOKEN_ID: ${{ secrets.PM_API_TOKEN_ID }}
@@ -38,5 +38,5 @@ jobs:
 
       - name: Proxmox Terraform Plan
         id: plan
-        run: terraform plan -parallelism=1 -no-color -input=false
+        run: terraform plan -parallelism=1 -no-color -input=false -var="root_pw=${{ secrets.DEFAULT_ROOT_PW }}"
         working-directory: ./proxmox
