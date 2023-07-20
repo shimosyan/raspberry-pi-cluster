@@ -37,6 +37,7 @@
       "ciuser",
       "sendfile",
       "nopush",
-      "cloudflared"
+      "cloudflared",
+      "onboot"
   ]
 }
