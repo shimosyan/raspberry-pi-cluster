@@ -1,0 +1,10 @@
+test:
+  hostname: test
+  target_node: "raspi-8gb-1"
+  unprivileged: false
+  onboot: true
+  cpu: 2
+  memory: 256
+  swap: 0
+  storage: 8G
+  ip: 192.168.6.66/24

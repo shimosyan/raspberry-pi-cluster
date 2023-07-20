@@ -22,24 +22,3 @@ terraform {
 provider "proxmox" {
   pm_api_url = "https://proxmox.micmnis.net/api2/json"
 }
-
-resource "proxmox_lxc" "basic" {
-  target_node  = "raspi-8gb-1"
-  hostname     = "lxc-basic"
-  ostemplate   = "synology-nfs:vztmpl/ubuntu-jammy-arm64-default.tar.xz"
-  unprivileged = true
-  memory       = 128
-
-  // Terraform will crash without rootfs defined
-  rootfs {
-    storage = "synology-nfs"
-    size    = "8G"
-  }
-
-  network {
-    name   = "eth0"
-    bridge = "vmbr0"
-    ip     = "dhcp"
-  }
-}
-
