@@ -38,6 +38,9 @@
       "sendfile",
       "nopush",
       "cloudflared",
-      "onboot"
+      "onboot",
+      "keyrings",
+      "dearmor",
+      "containerd"
   ]
 }

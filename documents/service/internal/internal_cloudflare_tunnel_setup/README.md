@@ -52,21 +52,37 @@
 
 その後、オプションより `ブート時に起動` および `保護` をそれぞれ `はい` に設定し、ノードが再起動した時に自動で稼働 & 誤って削除されないようにします。
 
-## nginx のインストール
+## docker のインストール
 
-次のコマンドを実行して nginx をインストールします。
+次のコマンドを実行して docker をインストールします。
 
 ```sh
 sudo apt update
-sudo apt install nginx
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 ```
 
-設定ファイルを編集して、80番ポートを Proxmox に、81番ポートを NAS にリダイレクトするようにします。
+## nginx の実行
 
-設定ファイルの `http` ブロックを次に置き換えます。
+カレントディレクトリ `/root` 配下に設定ファイルを作成します。
 
-```conf
-# /etc/nginx/nginx.conf
+80番ポートを Proxmox に、81番ポートを NAS にリダイレクトするようにします。
+
+次のコマンドを実行して、設定ファイルを生成します。
+
+```sh
+echo "user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+        worker_connections 768;
+        # multi_accept on;
+}
 
 http {
         sendfile on;
@@ -79,17 +95,11 @@ http {
         ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
         ssl_prefer_server_ciphers on;
 
-        access_log /var/log/nginx/access.log;
-        error_log /var/log/nginx/error.log;
-
         gzip on;
 
         # proxmox サーバー向けの設定
-
-        # ロードバランシングを有効にする
         upstream proxmox {
                 ip_hash;
-                # Proxmox のコンソールをすべて列挙する
                 server 192.168.6.33:8006;
                 server 192.168.6.34:8006;
                 server 192.168.6.35:8006;
@@ -99,14 +109,14 @@ http {
                 listen 80;
                 server_name _;
                 location / {
-                        proxy_set_header Host $http_host;
+                        proxy_set_header Host \$http_host;
                         proxy_pass https://proxmox;
 
                         # Webコンソールが動作するよう以下も記述する
                         proxy_http_version 1.1;
-                        proxy_set_header Connection $http_connection;
-                        proxy_set_header Origin http://$host;
-                        proxy_set_header Upgrade $http_upgrade;
+                        proxy_set_header Connection \$http_connection;
+                        proxy_set_header Origin http://\$host;
+                        proxy_set_header Upgrade \$http_upgrade;
                 }
         }
 
@@ -115,32 +125,25 @@ http {
                 listen 81;
                 server_name _;
                 location / {
-                        proxy_set_header Host $http_host;
+                        proxy_set_header Host \$http_host;
                         proxy_pass https://192.168.6.21:5101;
 
                         proxy_http_version 1.1;
-                        proxy_set_header Connection $http_connection;
-                        proxy_set_header Origin http://$host;
-                        proxy_set_header Upgrade $http_upgrade;
+                        proxy_set_header Connection \$http_connection;
+                        proxy_set_header Origin http://\$host;
+                        proxy_set_header Upgrade \$http_upgrade;
                 }
         }
-}
+}" > /root/nginx.conf
 ```
 
-追加できたらサービスを再起動・有効化します。
+docker を起動します。
 
 ```sh
-systemctl restart nginx
-systemctl enable nginx
+docker run --name nginx -v /root/nginx.conf:/etc/nginx/nginx.conf -d --restart always -p 80:80 -p 81:81 nginx:latest
 ```
 
 ## Cloudflare Tunnel の設定
-
-cURL が必要になることがあるのでインストールします。
-
-```sh
-sudo apt install curl
-```
 
 Cloudflare Zero Trust をセットアップします。
 
@@ -148,7 +151,7 @@ Cloudflare Zero Trust をセットアップします。
 
 ダッシュボードの Access → Tunnels から新規作成し、名称を `micmnis.net Internal Service` にします。
 
-arm-64bit 向け Ubuntu(Debian)用のインストールコマンドがあるのでそれをコピペします。
+`docker` 用のインストールコマンドがあるのでそれをコピーし、自動起動するように `docker run` の後ろに、 `--name cloudflare -d --restart always` オプションを付与して実行します。
 
 インストールコマンドが成功すると、Cloudflare に自動認識されるので次のページに進みます。
 
@@ -160,7 +163,7 @@ arm-64bit 向け Ubuntu(Debian)用のインストールコマンドがあるの�
   - Path: 空白でOK
 - Service
   - Type: `HTTP`
-  - URL: `localhost:80`
+  - URL: `192.168.6.65:80`
 
 ここまで入力できたら「Save Tunnel」をクリックします。
 
@@ -176,13 +179,7 @@ Tunnel の設定を開くと、ホストの追加ができるため次のよう�
   - Path: 空白でOK
 - Service
   - Type: `HTTP`
-  - URL: `localhost:81`
-
-最後に以下のコマンドを実行します。
-
-```sh
-systemctl enable cloudflared
-```
+  - URL: `192.168.6.65:81`
 
 加えて、Access 機能を使って認証しないと接続できないようにします。
 
