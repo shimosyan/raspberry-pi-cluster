@@ -12,6 +12,8 @@
 
 [構成図](https://miro.com/app/board/uXjVOnZ07F0=/?moveToWidget=3458764559945244700&cot=14)
 
+![構成図](./diagram.jpg)
+
 - 利用者は管理ユーザーとGithubActionを想定。
 - このサービスは外部に直接公開せず、Cloudflare のサーバーから Cloudflare Tunnel を経由して公開する。
   - 以下のドメインを公開する。
