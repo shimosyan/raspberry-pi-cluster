@@ -7,6 +7,7 @@ fi
 
 TOKEN=$1
 
+# 必要なパッケージのインストール
 apt update
 apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -14,6 +15,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docke
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
+# nginx の設定を作成
 echo "user www-data;
 worker_processes auto;
 pid /run/nginx.pid;
@@ -76,6 +78,8 @@ http {
         }
 }" > /root/nginx.conf
 
+# nginx を起動
 docker run --name nginx -v /root/nginx.conf:/etc/nginx/nginx.conf -d --restart always -p 80:80 -p 81:81 nginx:latest
 
+# cloudflared を起動
 docker run --name cloudflare -d --restart always cloudflare/cloudflared:latest tunnel --no-autoupdate run --token $TOKEN

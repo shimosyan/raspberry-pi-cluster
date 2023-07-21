@@ -10,6 +10,8 @@
 
 よって以下の仕様とします。
 
+[構成図](https://miro.com/app/board/uXjVOnZ07F0=/?moveToWidget=3458764559945244700&cot=14)
+
 - 利用者は管理ユーザーとGithubActionを想定。
 - このサービスは外部に直接公開せず、Cloudflare のサーバーから Cloudflare Tunnel を経由して公開する。
   - 以下のドメインを公開する。
@@ -35,7 +37,8 @@
 |---|---|---|
 |全般|ノード|VM を設置したいノード|
 |全般|VM ID|デフォルトのまま|
-|全般|名前|`cloudflare-internal`|
+|全般|名前|`cloudflare-internal-1`|
+|全般|非特権コンテナ|`off`|
 |全般|パスワード|root パスワード。1Password に保管|
 |テンプレート|ストレージ|[linux_container_initialize](./documents/guest_os/linux_container/linux_container_initialize/README.md) でテンプレートを保存したストレージ|
 |テンプレート|テンプレート|[linux_container_initialize](./documents/guest_os/linux_container/linux_container_initialize/README.md) で保存したテンプレート|
@@ -52,98 +55,16 @@
 
 その後、オプションより `ブート時に起動` および `保護` をそれぞれ `はい` に設定し、ノードが再起動した時に自動で稼働 & 誤って削除されないようにします。
 
-## docker のインストール
+## スクリプト起動のための準備
 
 次のコマンドを実行して docker をインストールします。
 
 ```sh
 sudo apt update
-sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo apt-get install -y curl
 ```
 
-## nginx の実行
-
-カレントディレクトリ `/root` 配下に設定ファイルを作成します。
-
-80番ポートを Proxmox に、81番ポートを NAS にリダイレクトするようにします。
-
-次のコマンドを実行して、設定ファイルを生成します。
-
-```sh
-echo "user www-data;
-worker_processes auto;
-pid /run/nginx.pid;
-include /etc/nginx/modules-enabled/*.conf;
-
-events {
-        worker_connections 768;
-        # multi_accept on;
-}
-
-http {
-        sendfile on;
-        tcp_nopush on;
-        types_hash_max_size 2048;
-
-        include /etc/nginx/mime.types;
-        default_type application/octet-stream;
-
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
-        ssl_prefer_server_ciphers on;
-
-        gzip on;
-
-        # proxmox サーバー向けの設定
-        upstream proxmox {
-                ip_hash;
-                server 192.168.6.33:8006;
-                server 192.168.6.34:8006;
-                server 192.168.6.35:8006;
-        }
-
-        server {
-                listen 80;
-                server_name _;
-                location / {
-                        proxy_set_header Host \$http_host;
-                        proxy_pass https://proxmox;
-
-                        # Webコンソールが動作するよう以下も記述する
-                        proxy_http_version 1.1;
-                        proxy_set_header Connection \$http_connection;
-                        proxy_set_header Origin http://\$host;
-                        proxy_set_header Upgrade \$http_upgrade;
-                }
-        }
-
-        # NAS 向けの設定
-        server {
-                listen 81;
-                server_name _;
-                location / {
-                        proxy_set_header Host \$http_host;
-                        proxy_pass https://192.168.6.21:5101;
-
-                        proxy_http_version 1.1;
-                        proxy_set_header Connection \$http_connection;
-                        proxy_set_header Origin http://\$host;
-                        proxy_set_header Upgrade \$http_upgrade;
-                }
-        }
-}" > /root/nginx.conf
-```
-
-docker を起動します。
-
-```sh
-docker run --name nginx -v /root/nginx.conf:/etc/nginx/nginx.conf -d --restart always -p 80:80 -p 81:81 nginx:latest
-```
-
-## Cloudflare Tunnel の設定
+## Cloudflare Tunnel の準備
 
 Cloudflare Zero Trust をセットアップします。
 
@@ -151,7 +72,20 @@ Cloudflare Zero Trust をセットアップします。
 
 ダッシュボードの Access → Tunnels から新規作成し、名称を `micmnis.net Internal Service` にします。
 
-`docker` 用のインストールコマンドがあるのでそれをコピーし、自動起動するように `docker run` の後ろに、 `--name cloudflare -d --restart always` オプションを付与して実行します。
+それぞれの環境ごとのインストールコマンドに Token が表示されているので、それをコピーします。
+
+## 環境のインストール
+
+以下のコマンドを実行します。`<token>` の箇所は先の手順で入手した Cloudflare Tunnel の Token に置き換えます。
+
+```sh
+sudo -s
+curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/scripts/setup-cloudflare-internal.sh > setup-cloudflare-internal.sh
+chmod +x setup-cloudflare-internal.sh
+./setup-cloudflare-internal.sh <token>
+```
+
+## Cloudflare Tunnel の設定
 
 インストールコマンドが成功すると、Cloudflare に自動認識されるので次のページに進みます。
 
