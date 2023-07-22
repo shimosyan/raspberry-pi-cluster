@@ -118,7 +118,7 @@ RUNNER_ALLOW_RUNASROOT=1 ./config.sh --url https://github.com/shimosyan/raspberr
 - `Enter the name of the runner group to add this runner to: [press Enter for Default]`: 何も入力せずエンター
 - `Enter the name of runner: [press Enter for github-action-runner-and-ansible]`: 何も入力せずエンター
 - `This runner will have the following labels: 'self-hosted', 'Linux', 'ARM64' Enter any additional labels (ex. label-1,label-2): [press Enter to skip]`: `proxmox-ansible`
-- `Enter name of work folder: [press Enter for _work]`: `~/`
+- `Enter name of work folder: [press Enter for _work]`: 何も入力せずエンター
 
 ## Github Action Self-hosted Runner の実行
 
