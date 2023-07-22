@@ -110,7 +110,7 @@ sudo apt install -y ansible
 Proxmox のホスト先の指定が必要です。以下のコマンドを実行して、`hosts` ファイルをダウンロードします。
 
 ```sh
-curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/hosts > /etc/ansible/hosts
+curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/hosts?$(date +%s) > /etc/ansible/hosts
 ```
 
 以下のコマンドを実行して、Ansible 側の公開鍵を表示します。
