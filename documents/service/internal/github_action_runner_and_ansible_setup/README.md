@@ -20,7 +20,7 @@ Kubernetes を LXC で起動するためには、Proxmox 内に設置される�
 
 ## LXC の起動
 
-Terraform で作成します。
+Terraform で作成します。**事前に `/proxmox` 内の Terraform プロジェクトを用意してください。([手順](/proxmox/README.md))**
 
 [/proxmox/container.tf](/proxmox/container.tf) に以下の通りに記載し、`terraform apply` コマンドでデプロイします。
 
