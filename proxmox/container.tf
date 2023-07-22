@@ -11,7 +11,7 @@ resource "proxmox_lxc" "github_action_runner_and_ansible" {
   unprivileged = false
   onboot       = true
   cores        = 1
-  memory       = 256
+  memory       = 512 # 512MB ないと Ansible が動かない
   swap         = 0
   password     = var.root_pw
   start        = true # インスタンスをスタートしていないと削除できない Ref. https://github.com/Telmate/terraform-provider-proxmox/issues/801
