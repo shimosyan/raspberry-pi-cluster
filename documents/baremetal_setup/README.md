@@ -103,6 +103,14 @@ Realm は `Linux PAM standard authentication` を選択してください。
 
 有効なサブスクリプションがないというアラートが出ますが、気にせず OK で閉じてください。
 
+## Ansible への登録
+
+[github_action_runner_and_ansible_setup](/documents/service/internal/github_action_runner_and_ansible_setup/README.md) をセットアップしている場合は以下の手順を実施してください。
+
+### hosts ファイルの更新
+
+この [hosts](/ansible/hosts) ファイルを更新して、[Ansible の設定](/documents/service/internal/github_action_runner_and_ansible_setup/README.md#ansible-の設定) を実施してください。
+
 ## 参考資料
 
 - <https://qiita.com/wancom/items/c6b5ca66ab421d696beb>

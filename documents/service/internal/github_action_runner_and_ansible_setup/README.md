@@ -19,6 +19,7 @@ Kubernetes を LXC で起動するためには、Proxmox 内に設置される�
 - 本サービスでは以下のアプリケーションを稼働させる。
   - `github action self-host runner`: Github Action とコネクションを張り、ジョブからコマンドが実行されたら同環境にてコマンドを実行する役割を担う。
   - `ansible`: 他の複数のホストに対して SSH 経由でコマンドを実行する役割を担う。
+- アプリケーション間またはホスト間の通信がややこしいので Docker は使用しない。
 
 ## LXC の起動
 
@@ -60,5 +61,80 @@ resource "proxmox_lxc" "github_action_runner_and_ansible" {
   }
 
   nameserver = "192.168.2.1"
+}
+```
+
+## SSH キーの作成
+
+Ansible で使用する SSH キーを生成します。
+
+### 新規作成の場合
+
+以下のコマンドを実行します。
+
+```sh
+ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_rsa
+```
+
+### 秘密鍵をすでに持っている場合
+
+1Password などにすでに秘密鍵を保有している場合はこちらのコマンドを実行してください。
+
+`<private_key>` の箇所は秘密鍵に置き換えてください。
+
+```sh
+mkdir -p ~/.ssh
+echo "<private_key>" > ~/.ssh/id_rsa
+ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+```
+
+## Ansible のインストール
+
+次のコマンドを実行して Ansible をインストールします。
+
+```sh
+sudo apt update
+sudo apt-get install -y curl software-properties-common
+sudo apt-add-repository --yes --update ppa:ansible/ansible
+sudo apt install -y ansible
+```
+
+## Ansible の設定
+
+Proxmox のホスト先の指定が必要です。以下のコマンドを実行して、`hosts` ファイルをダウンロードします。
+
+```sh
+curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/hosts > /etc/ansible/hosts
+```
+
+以下のコマンドを実行して、Ansible 側の公開鍵を表示します。
+
+```sh
+cat ~/.ssh/id_rsa.pub
+```
+
+表示できたら、別ウィンドウで Proxmox のホストコンソールにアクセスし、root ユーザーで以下のコマンドを実行します。
+
+このとき `<key>` は上記公開鍵に置き換えてください。
+
+```sh
+echo "<key>" >> ~/.ssh/authorized_keys
+```
+
+以下のコマンドを実行して疎通確認をします。IP アドレスの箇所は適宜置き換えてください。
+
+```sh
+ansible 192.168.6.33 -m ping
+```
+
+以下のようなメッセージが返ってきたら疎通成功です。
+
+```txt
+192.168.6.33 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
 }
 ```
