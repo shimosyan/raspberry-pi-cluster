@@ -1,4 +1,8 @@
-# Proxmox Terraform PJ
+# Proxmox Terraform
+
+## 公式リファレンス
+
+<https://registry.terraform.io/providers/Telmate/proxmox/latest/docs>
 
 ## セットアップ方法
 
