@@ -48,7 +48,7 @@ resource "proxmox_lxc" "k8s" {
   memory       = each.value["memory"]
   swap         = each.value["swap"]
   password     = var.root_pw
-  start        = true # インスタンスをスタートしていないと削除できない Ref. https://github.com/Telmate/terraform-provider-proxmox/issues/801
+  start        = false # Ansible 側で起動する
 
   // rootfs を記述しないとクラッシュするので注意
   rootfs {
