@@ -16,7 +16,8 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
 # nginx の設定を作成
-echo "user www-data;
+cat <<EOF > /root/nginx.conf
+user www-data;
 worker_processes auto;
 pid /run/nginx.pid;
 include /etc/nginx/modules-enabled/*.conf;
@@ -76,7 +77,8 @@ http {
                         proxy_set_header Upgrade \$http_upgrade;
                 }
         }
-}" > /root/nginx.conf
+}
+EOF
 
 # nginx を起動
 docker run --name nginx -v /root/nginx.conf:/etc/nginx/nginx.conf -d --restart always -p 80:80 -p 81:81 nginx:latest
