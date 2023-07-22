@@ -1,0 +1,11 @@
+- hosts: test-servers
+  become: yes
+  vars:
+    vm_id: 100
+  tasks:
+    - name: Pull Script
+      ansible.builtin.shell:
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/modify_lxc.sh > ~/modify_lxc.sh
+
+    - name: Run Script
+      ansible.builtin.script: ~/modify_lxc.sh {{vm_id}}
