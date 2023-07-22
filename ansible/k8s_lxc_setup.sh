@@ -18,6 +18,10 @@ do
 
   echo "[$LXC_VM_ID] $(date): ファイルが見つかりました。設定を追記します。 => $CONFIG_FILE\n"
 
+  if ! grep -q "features" $CONFIG_FILE; then
+    pct set $LXC_VM_ID --features nesting=1
+  fi
+
   if ! grep -q "lxc.apparmor.profile" $CONFIG_FILE; then
     echo "lxc.apparmor.profile: unconfined" >> $CONFIG_FILE
   fi
