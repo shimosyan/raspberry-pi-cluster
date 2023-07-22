@@ -87,5 +87,7 @@ jobs:
 
       - name: Run playbook
         run: |
-          ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars "vm_id=${needs.terraform.outputs.vm_list}"
+          ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars "vm_id=${VM_LIST}"
         working-directory: ./ansible
+        env:
+         VM_LIST: ${{needs.terraform.outputs.vm_list}}
