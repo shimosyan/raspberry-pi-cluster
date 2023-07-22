@@ -7,6 +7,9 @@
       ansible.builtin.shell:
         cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/modify_lxc.sh > ~/modify_lxc.sh
 
-    - name: Run Script
+    - name: Grand Permission to Script
       ansible.builtin.shell:
-        cmd: ~/modify_lxc.sh {{vm_id}}
+        cmd: chmod +x ~/modify_lxc.sh
+
+    - name: Run Script
+      ansible.builtin.script: ~/modify_lxc.sh {{vm_id}}
