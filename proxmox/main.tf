@@ -4,6 +4,9 @@
 terraform {
   required_version = ">= 1.0.0"
 
+  /*
+    .tfstate は AWS S3 に保存すること
+  */
   backend "s3" {
     bucket  = "terraform.micmnis.net"
     region  = "ap-northeast-1"
