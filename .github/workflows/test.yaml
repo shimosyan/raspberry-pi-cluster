@@ -65,18 +65,18 @@ jobs:
             VM_LIST=$(echo "$VM_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
             echo -n "New VM List = $VM_LIST"
 
-            echo "has_new_vm=1" >> "$GITHUB_OUTPUT"
+            echo "has_new_vm=true" >> "$GITHUB_OUTPUT"
             echo "vm_list=$(echo -n "$VM_LIST")" >> "$GITHUB_OUTPUT"
             exit 0;
           fi
 
           echo "No new vm."
-          echo "has_new_vm=0" >> "$GITHUB_OUTPUT"
+          echo "has_new_vm=false" >> "$GITHUB_OUTPUT"
 
   # Extract Create VM で出力した has_new_vm が 1 のときだけ実行する
   ansible:
-    if: needs.terraform.outputs.has_new_vm == 1
-    runs-on: self-hosted
+    if: needs.terraform.outputs.has_new_vm == "true"
+    runs-on: [self-hosted, proxmox-ansible]
 
     steps:
       - name: Checkout
