@@ -91,6 +91,7 @@ cat ~/.ssh/id_rsa
 ```sh
 mkdir -p ~/.ssh
 echo "<private_key>" > ~/.ssh/id_rsa
+chmod 600 ~/.ssh/id_rsa
 ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
 ```
 
@@ -145,6 +146,14 @@ ansible 192.168.6.33 -m ping
     "ping": "pong"
 }
 ```
+
+## Github Action Self-hosted Runner のインストール・設定
+
+公式通りの導入となります。
+
+リポジトリの Settings を開いて、 Actions → Runners を開き「New self-hosted runner」をクリックします。
+
+Runner image は `Linux`、Architecture は `ARM64` を選んで、表示されているコマンドをそのまま実行します。
 
 ## 参考資料
 
