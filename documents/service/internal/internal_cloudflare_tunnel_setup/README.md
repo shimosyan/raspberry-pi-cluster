@@ -10,7 +10,7 @@
 
 よって以下の仕様とします。
 
-[構成図](https://miro.com/app/board/uXjVOnZ07F0=/?moveToWidget=3458764559945244700&cot=14)
+[最新の構成図](https://miro.com/app/board/uXjVOnZ07F0=/?moveToWidget=3458764559945244700&cot=14)
 
 ![構成図](./diagram.jpg)
 
@@ -21,10 +21,10 @@
     - NAS 用: `nas.micmnis.net`
   - これらのドメインには Cloudflare によるアクセス制御を実装し、以下の認証要素を備える。
     - micmnis.net の Google Workspace を Identity Provider とした SAML2.0 によるシングルサインオン認証。
-    - Cloudflare Service Token を用いたトークン認証
+    - Cloudflare Service Token を用いたトークン認証。
 - このインスタンスは HA 構成とし、稼働しているノードが停止しても他のノードにライブマイグレーションできるようにする。
   - そのために、ストレージは NAS に展開とする。
-- 本サービスでは以下のアプリケーションを稼働させる
+- 本サービスでは以下のアプリケーションを稼働させる。
   - `cloudflared`: Cloudflare とトンネリングを担う。
   - `nginx`: Cloudflare Tunnel から送られたリクエストを各サーバーに振り分けるリバースプロキシ、およびロードバランサーを担う
     - Proxmox はいずれかのノードが停止している可能性を踏まえて、すべてのサーバーに向けて IP ハッシュ方式でロードバランシングする。
