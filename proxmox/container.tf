@@ -56,10 +56,6 @@ resource "proxmox_lxc" "k8s" {
     size    = each.value["storage"]
   }
 
-  features {
-    nesting = true
-  }
-
   network {
     name     = "eth0"
     bridge   = "vmbr0"
