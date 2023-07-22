@@ -75,7 +75,7 @@ jobs:
 
   # Extract Create VM で出力した has_new_vm が 1 のときだけ実行する
   ansible:
-    if: needs.terraform.outputs.has_new_vm == "true"
+    if: needs.terraform.outputs.has_new_vm == 'true'
     runs-on: [self-hosted, proxmox-ansible]
 
     steps:
