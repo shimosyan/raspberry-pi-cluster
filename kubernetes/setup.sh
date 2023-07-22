@@ -2,7 +2,7 @@
 
 cd `dirname $0`
 
-FILE="./.k8s_setup_done"
+FILE="./.setup_done"
 
 # このスクリプトが一度でも実行されたログがあるなら処理を継続しない
 if [ -e $FILE ]; then
