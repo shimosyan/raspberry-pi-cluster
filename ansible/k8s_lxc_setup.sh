@@ -39,5 +39,5 @@ do
 
   # セットアップスクリプトを送信
   pct push $LXC_VM_ID ./setup.sh /root/setup.sh
-  pct exec $LXC_VM_ID sudo -s && chmod +x  /root/setup.sh && /root/setup.sh
+  pct exec $LXC_VM_ID sh /root/setup.sh
 done

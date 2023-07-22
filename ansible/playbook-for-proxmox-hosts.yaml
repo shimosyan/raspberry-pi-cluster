@@ -5,7 +5,7 @@
   tasks:
     - name: Pull Script
       ansible.builtin.shell:
-        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/modify_lxc.sh?$(date +%s) > ~/modify_lxc.sh
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/k8s_lxc_setup.sh?$(date +%s) > ~/k8s_lxc_setup.sh
 
     - name: Pull Container Script
       ansible.builtin.shell:
@@ -13,11 +13,11 @@
 
     - name: Grand Permission to Script
       ansible.builtin.shell:
-        cmd: chmod +x ~/modify_lxc.sh
+        cmd: chmod +x ~/k8s_lxc_setup.sh
 
     - name: Run Script
       ansible.builtin.shell:
-        cmd: sh ~/modify_lxc.sh {{lxc_vm_id}}
+        cmd: sh ~/k8s_lxc_setup.sh {{lxc_vm_id}}
       register: return_from_shell # 実行結果を ansible 変数に入れる
 
     - name: Show Script Result
