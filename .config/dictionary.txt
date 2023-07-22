@@ -30,6 +30,7 @@ qcow
 qume
 raspi
 rootfs
+RUNASROOT
 scsihw
 sendfile
 shimosyan
