@@ -52,6 +52,7 @@ jobs:
         run: terraform apply -auto-approve -parallelism=1 -no-color -input=false -var="root_pw=${{ secrets.DEFAULT_ROOT_PW }}"
         working-directory: ./proxmox
 
+      # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから VM ID のみ抽出し複数の場合はカンマ区切りに整形する
       - name: Extract Created VM
         id: extract
         env:
@@ -74,7 +75,7 @@ jobs:
           echo "has_new_vm=false" >> "$GITHUB_OUTPUT"
 
   # Extract Create VM で出力した has_new_vm が 1 のときだけ実行する
-  ansible:
+  proxmox-ansible:
     needs: terraform # job.terraform に依存するようにする
     if: needs.terraform.outputs.has_new_vm == 'true'
     runs-on: [self-hosted, proxmox-ansible]
@@ -85,7 +86,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run playbook
+      - name: Run Playbook
         run: |
           ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars "vm_id=${VM_LIST}"
         working-directory: ./ansible
