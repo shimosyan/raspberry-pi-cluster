@@ -14,8 +14,8 @@ jobs:
       PM_HTTP_HEADERS: CF-Access-Client-Id,${{ secrets.CF_ACCESS_CLIENT_ID }},CF-Access-Client-Secret,${{ secrets.CF_ACCESS_CLIENT_SECRET }}
 
     outputs:
-      has_new_lxc_vm: ${{ steps.extract.outputs.has_new_lxc_vm }}
-      lxc_vm_list: ${{ steps.extract.outputs.lxc_vm_list }}
+      has_new_k8s_lxc_vm: ${{ steps.extract.outputs.has_new_k8s_lxc_vm }}
+      k8s_lxc_vm_list: ${{ steps.extract.outputs.k8s_lxc_vm_list }}
 
     steps:
       - name: Checkout
@@ -55,7 +55,7 @@ jobs:
         working-directory: ./proxmox
 
       # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから LXC の VM ID のみ抽出し複数の場合はカンマ区切りに整形する
-      - name: Extract Created LXC VM ID
+      - name: Extract Created k8s LXC VM ID
         id: extract
         env:
           DEPLOY_RESULT: "${{ steps.deploy.outputs.stdout }}" # terraform deploy の出力を変数に入れる
@@ -63,23 +63,23 @@ jobs:
           EXTRACT_RESULT=$(echo "$DEPLOY_RESULT" | grep -E 'proxmox_lxc.k8s\[".+?"\]: Creation complete after .+? \[id=.+?\]' || true)
 
           if [ ! -z "$EXTRACT_RESULT" ]; then
-            LXC_VM_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^.\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\1/gi' )
+            K8S_LXC_VM_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^.\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\1/gi' )
 
-            LXC_VM_LIST=$(echo "$LXC_VM_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
-            echo -n "New LXC VM List = $LXC_VM_LIST"
+            K8S_LXC_VM_LIST=$(echo "$K8S_LXC_VM_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
+            echo -n "New k8s LXC VM List = $K8S_LXC_VM_LIST"
 
-            echo "has_new_lxc_vm=true" >> "$GITHUB_OUTPUT"
-            echo "lxc_vm_list=$(echo -n "$LXC_VM_LIST")" >> "$GITHUB_OUTPUT"
+            echo "has_new_k8s_lxc_vm=true" >> "$GITHUB_OUTPUT"
+            echo "k8s_lxc_vm_list=$(echo -n "$K8S_LXC_VM_LIST")" >> "$GITHUB_OUTPUT"
             exit 0;
           fi
 
-          echo "No new lxc."
-          echo "has_new_lxc_vm=false" >> "$GITHUB_OUTPUT"
+          echo "No new k8s lxc."
+          echo "has_new_k8s_lxc_vm=false" >> "$GITHUB_OUTPUT"
 
   # Extract Create LXC で出力した has_new_vm が 1 のときだけ実行する
-  proxmox-ansible:
+  proxmox-kubernetes-ansible:
     needs: terraform # job.terraform に依存するようにする
-    if: needs.terraform.outputs.has_new_lxc_vm == 'true'
+    if: needs.terraform.outputs.has_new_k8s_lxc_vm == 'true'
     runs-on: [self-hosted, proxmox-ansible]
 
     steps:
@@ -90,7 +90,7 @@ jobs:
 
       - name: Run Playbook
         run: |
-          ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars "lxc_vm_id=${LXC_VM_LIST}"
+          ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars "k8s_lxc_vm_id=${K8S_LXC_VM_LIST}"
         working-directory: ./ansible
         env:
-         LXC_VM_LIST: ${{needs.terraform.outputs.lxc_vm_list}}
+          K8S_LXC_VM_LIST: ${{needs.terraform.outputs.k8s_lxc_vm_list}}
