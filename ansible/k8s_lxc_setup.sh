@@ -42,7 +42,7 @@ do
   pct start $LXC_VM_ID
 
   # カーネル参照先のディレクトリを作成
-  pct exec $LXC_VM_ID mkdir -p /usr/lib/modules
+  pct exec $LXC_VM_ID -- mkdir -p /usr/lib/modules
 
   # マウントを追加
   if ! grep -q "lxc.mount.entry" $CONFIG_FILE; then
