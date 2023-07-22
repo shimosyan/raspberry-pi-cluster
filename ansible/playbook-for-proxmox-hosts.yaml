@@ -14,3 +14,8 @@
     - name: Run Script
       ansible.builtin.shell:
         cmd: sh ~/modify_lxc.sh {{vm_id}}
+      register: return_from_shell # 実行結果を ansible 変数に入れる
+
+    - name: Show Script Result
+      debug:
+        msg: "{{ return_from_shell.stdout }}" # .stdout に標準出力の結果が入っている

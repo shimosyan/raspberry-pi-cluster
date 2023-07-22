@@ -9,7 +9,7 @@ CONFIG_FILE="/etc/pve/lxc/$1.conf"
 
 if [ ! -f $CONFIG_FILE ]; then
   echo "ファイルが見つかりません。 $CONFIG_FILE"
-  exit 1;
+  exit 0;
 fi
 
 echo "ファイルが見つかりました。 $CONFIG_FILE"
