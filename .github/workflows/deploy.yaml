@@ -1,6 +1,8 @@
-name: Test
+name: Proxmox Container Deploy
 on:
   push:
+    branches:
+      - main
 
 jobs:
   terraform:
