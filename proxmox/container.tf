@@ -37,7 +37,7 @@ resource "proxmox_lxc" "k8s" {
   for_each = local.container
 
   vmid         = each.value["vmid"]
-  hostname     = each.value["hostname"]
+  hostname     = each.key
   target_node  = each.value["target_node"]
   ostemplate   = var.lxc_os_template
   arch         = "arm64"

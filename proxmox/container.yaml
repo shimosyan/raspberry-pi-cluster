@@ -1,8 +1,8 @@
+# key は自動で hostname に使用されます
 test:
-  enable: false
+  enable: false # true にするとインスタンスが作成されます。
 
   vmid: 103
-  hostname: test
   target_node: "raspi-8gb-1"
   unprivileged: false
   onboot: true
