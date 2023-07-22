@@ -35,6 +35,7 @@ sendfile
 shimosyan
 swapfile
 swapoff
+tfstate
 uefi
 virtio
 vmbr
