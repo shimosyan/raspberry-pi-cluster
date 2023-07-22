@@ -5,11 +5,18 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-CONFIG_FILE="/etc/pve/lxc/$1.conf"
+VM_LIST=$1
 
-if [ ! -f $CONFIG_FILE ]; then
-  echo "ファイルが見つかりません。 $CONFIG_FILE"
-  exit 0;
-fi
+for VM_ID in `echo "$VM_LIST" | tr "," "\n"`
+do
+  CONFIG_FILE="/etc/pve/lxc/$VM_ID.conf"
 
-echo "ファイルが見つかりました。 $CONFIG_FILE"
+  if [ ! -f $CONFIG_FILE ]; then
+    echo "$(date) File Not Found. $CONFIG_FILE"
+    echo "$(date) File Not Found. $CONFIG_FILE" >> ~/ansible.log
+    exit 0;
+  fi
+
+  echo "$(date) ファイルが見つかりました。 $CONFIG_FILE"
+  echo "$(date) ファイルが見つかりました。 $CONFIG_FILE" >> ~/ansible.log
+done
