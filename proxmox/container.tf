@@ -16,7 +16,7 @@ resource "proxmox_lxc" "github_action_runner_and_ansible" {
   // rootfs を記述しないとクラッシュするので注意
   rootfs {
     storage = "synology-nfs"
-    size    = "8GB"
+    size    = "8G"
   }
 
   network {
