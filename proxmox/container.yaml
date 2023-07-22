@@ -1,4 +1,5 @@
 test:
+  vmid: 103
   hostname: test
   target_node: "raspi-8gb-1"
   unprivileged: false
