@@ -95,6 +95,41 @@ chmod 600 ~/.ssh/id_rsa
 ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
 ```
 
+## Github Action Self-hosted Runner のインストール
+
+公式通りの導入となります。
+
+リポジトリの Settings を開いて、 Actions → Runners を開き「New self-hosted runner」をクリックします。
+
+Runner image は `Linux`、Architecture は `ARM64` を選んで、表示されているコマンドをそのまま実行します。
+
+ただし、Optional の箇所はハッシュ計算のところで動かないことがあるのでスルーします。
+
+## Github Action Self-hosted Runner の設定
+
+Runner の設定コマンドではデフォルトでは root ユーザーで実行できません。それぞれ以下のように手前に `RUNNER_ALLOW_RUNASROOT=1` を付与します。
+
+```sh
+RUNNER_ALLOW_RUNASROOT=1 ./config.sh --url https://github.com/shimosyan/raspberry-pi-cluster --token <token>
+```
+
+対話式の設定では次のようにします。
+
+- `Enter the name of the runner group to add this runner to: [press Enter for Default]`: 何も入力せずエンター
+- `Enter the name of runner: [press Enter for github-action-runner-and-ansible]`: 何も入力せずエンター
+- `This runner will have the following labels: 'self-hosted', 'Linux', 'ARM64' Enter any additional labels (ex. label-1,label-2): [press Enter to skip]`: `proxmox-ansible`
+- `Enter name of work folder: [press Enter for _work]`: `~/`
+
+## Github Action Self-hosted Runner の実行
+
+Github 側に表示されている `./run.sh` は実行せずに、Github Action Self-hosted Runner をインストールしたディレクトリで次のコマンドを実行します。
+
+```sh
+./svc.sh install
+./svc.sh start
+cd ~/
+```
+
 ## Ansible のインストール
 
 次のコマンドを実行して Ansible をインストールします。
@@ -147,40 +182,6 @@ ansible 192.168.6.33 -m ping
     "changed": false,
     "ping": "pong"
 }
-```
-
-## Github Action Self-hosted Runner のインストール
-
-公式通りの導入となります。
-
-リポジトリの Settings を開いて、 Actions → Runners を開き「New self-hosted runner」をクリックします。
-
-Runner image は `Linux`、Architecture は `ARM64` を選んで、表示されているコマンドをそのまま実行します。
-
-ただし、Optional の箇所はハッシュ計算のところで動かないことがあるのでスルーします。
-
-## Github Action Self-hosted Runner の設定
-
-Runner の設定コマンドではデフォルトでは root ユーザーで実行できません。それぞれ以下のように手前に `RUNNER_ALLOW_RUNASROOT=1` を付与します。
-
-```sh
-RUNNER_ALLOW_RUNASROOT=1 ./config.sh --url https://github.com/shimosyan/raspberry-pi-cluster --token <token>
-```
-
-対話式の設定では次のようにします。
-
-- `Enter the name of the runner group to add this runner to: [press Enter for Default]`: 何も入力せずエンター
-- `Enter the name of runner: [press Enter for github-action-runner-and-ansible]`: 何も入力せずエンター
-- `This runner will have the following labels: 'self-hosted', 'Linux', 'ARM64' Enter any additional labels (ex. label-1,label-2): [press Enter to skip]`: 何も入力せずエンター
-- `Enter name of work folder: [press Enter for _work]`: `~/`
-
-## Github Action Self-hosted Runner の実行
-
-Github Action Self-hosted Runner をインストールしたディレクトリで次のコマンドを実行します。
-
-```sh
-./svc.sh install
-./svc.sh start
 ```
 
 ## 参考資料
