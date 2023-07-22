@@ -8,6 +8,8 @@ Kubernetes を LXC で起動するためには、Proxmox 内に設置される�
 
 それらを自動化するために、Github Action からコンテナを作成した際に上記作業を実行できる環境を作成します。
 
+よって以下の仕様とします。
+
 [最新の構成図](https://miro.com/app/board/uXjVOnZ07F0=/?moveToWidget=3458764559949216999&cot=14)
 
 ![構成図](./diagram.jpg)
@@ -26,6 +28,9 @@ Terraform で作成します。**事前に `/proxmox` 内の Terraform プロジ
 
 ```tf
 resource "proxmox_lxc" "github_action_runner_and_ansible" {
+  # Enable Switch, 1 = true, 0 = false
+  count = 1
+
   vmid         = 102
   hostname     = "github-action-runner-and-ansible"
   target_node  = "raspi-4gb-2"

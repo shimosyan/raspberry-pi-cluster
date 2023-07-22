@@ -1,4 +1,7 @@
 resource "proxmox_lxc" "github_action_runner_and_ansible" {
+  # Enable Switch, 1 = true, 0 = false
+  count = 1
+
   vmid         = 102
   hostname     = "github-action-runner-and-ansible"
   target_node  = "raspi-4gb-2"
@@ -30,7 +33,6 @@ resource "proxmox_lxc" "github_action_runner_and_ansible" {
   nameserver = "192.168.2.1"
 }
 
-/*
 resource "proxmox_lxc" "k8s" {
   for_each = local.container
 
@@ -64,5 +66,3 @@ resource "proxmox_lxc" "k8s" {
 
   nameserver = "192.168.2.1"
 }
-
-*/

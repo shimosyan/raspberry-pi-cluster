@@ -1,4 +1,6 @@
 test:
+  enable: false
+
   vmid: 103
   hostname: test
   target_node: "raspi-8gb-1"
