@@ -11,7 +11,6 @@ if [ -e $FILE ]; then
 fi
 
 # k8s をセットアップする
-exit 0;
 apt update
 
 cat <<EOF > /etc/sysctl.d/k8s.conf

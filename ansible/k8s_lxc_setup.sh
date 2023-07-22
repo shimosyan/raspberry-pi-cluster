@@ -19,7 +19,7 @@ do
   echo "[$LXC_VM_ID] $(date): ファイルが見つかりました。設定を追記します。 => $CONFIG_FILE\n"
 
   if ! grep -q "features" $CONFIG_FILE; then
-    pct set $LXC_VM_ID --features nesting=1
+    pct set $LXC_VM_ID --features fuse=1,keyctl=1,nesting=1
   fi
 
   if ! grep -q "lxc.apparmor.profile" $CONFIG_FILE; then
@@ -38,8 +38,19 @@ do
     echo "lxc.mount.auto: proc:rw sys:rw" >> $CONFIG_FILE
   fi
 
-  # コンテナを起動
+  #コンテナを一旦起動
   pct start $LXC_VM_ID
+
+  # カーネル参照先のディレクトリを作成
+  pct exec $LXC_VM_ID mkdir -p /usr/lib/modules
+
+  # マウントを追加
+  if ! grep -q "lxc.mount.entry" $CONFIG_FILE; then
+    echo "lxc.mount.entry: /usr/lib/modules usr/lib/modules none bind 0 0" >> $CONFIG_FILE
+  fi
+
+  # コンテナを再起動
+  pct reboot $LXC_VM_ID
 
   # セットアップスクリプトを送信
   pct push $LXC_VM_ID ./setup.sh /root/setup.sh
