@@ -12,11 +12,9 @@ do
   CONFIG_FILE="/etc/pve/lxc/$VM_ID.conf"
 
   if [ ! -f $CONFIG_FILE ]; then
-    echo "$(date) File Not Found. $CONFIG_FILE"
-    echo "$(date) File Not Found. $CONFIG_FILE" >> ~/ansible.log
-    exit 0;
+    echo "$(date) File Not Found. $CONFIG_FILE\n"
+    continue
   fi
 
-  echo "$(date) ファイルが見つかりました。 $CONFIG_FILE"
-  echo "$(date) ファイルが見つかりました。 $CONFIG_FILE" >> ~/ansible.log
+  echo "$(date) ファイルが見つかりました。 $CONFIG_FILE\n"
 done
