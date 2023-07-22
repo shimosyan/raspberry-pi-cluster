@@ -1,4 +1,4 @@
-- hosts: test-servers
+- hosts: proxmox
   become: yes
   vars:
     vm_id: 100
