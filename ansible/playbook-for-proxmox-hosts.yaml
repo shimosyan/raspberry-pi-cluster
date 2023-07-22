@@ -1,7 +1,7 @@
 - hosts: proxmox
   become: yes
   vars:
-    vm_id: 100
+    lxc_vm_id: 100
   tasks:
     - name: Pull Script
       ansible.builtin.shell:
@@ -13,7 +13,7 @@
 
     - name: Run Script
       ansible.builtin.shell:
-        cmd: sh ~/modify_lxc.sh {{vm_id}}
+        cmd: sh ~/modify_lxc.sh {{lxc_vm_id}}
       register: return_from_shell # 実行結果を ansible 変数に入れる
 
     - name: Show Script Result

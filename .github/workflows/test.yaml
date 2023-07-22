@@ -12,8 +12,8 @@ jobs:
       PM_HTTP_HEADERS: CF-Access-Client-Id,${{ secrets.CF_ACCESS_CLIENT_ID }},CF-Access-Client-Secret,${{ secrets.CF_ACCESS_CLIENT_SECRET }}
 
     outputs:
-      has_new_vm: ${{ steps.extract.outputs.has_new_vm }}
-      vm_list: ${{ steps.extract.outputs.vm_list }}
+      has_new_lxc_vm: ${{ steps.extract.outputs.has_new_lxc_vm }}
+      lxc_vm_list: ${{ steps.extract.outputs.lxc_vm_list }}
 
     steps:
       - name: Checkout
@@ -52,8 +52,8 @@ jobs:
         run: terraform apply -auto-approve -parallelism=1 -no-color -input=false -var="root_pw=${{ secrets.DEFAULT_ROOT_PW }}"
         working-directory: ./proxmox
 
-      # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから VM ID のみ抽出し複数の場合はカンマ区切りに整形する
-      - name: Extract Created VM
+      # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから LXC の VM ID のみ抽出し複数の場合はカンマ区切りに整形する
+      - name: Extract Created LXC VM ID
         id: extract
         env:
           DEPLOY_RESULT: "${{ steps.deploy.outputs.stdout }}" # terraform deploy の出力を変数に入れる
@@ -61,23 +61,23 @@ jobs:
           EXTRACT_RESULT=$(echo "$DEPLOY_RESULT" | grep -E 'proxmox_lxc.k8s\[".+?"\]: Creation complete after .+? \[id=.+?\]' || true)
 
           if [ ! -z "$EXTRACT_RESULT" ]; then
-            VM_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^.\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\1/gi' )
+            LXC_VM_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^.\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\1/gi' )
 
-            VM_LIST=$(echo "$VM_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
-            echo -n "New VM List = $VM_LIST"
+            LXC_VM_LIST=$(echo "$LXC_VM_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
+            echo -n "New LXC VM List = $LXC_VM_LIST"
 
-            echo "has_new_vm=true" >> "$GITHUB_OUTPUT"
-            echo "vm_list=$(echo -n "$VM_LIST")" >> "$GITHUB_OUTPUT"
+            echo "has_new_lxc_vm=true" >> "$GITHUB_OUTPUT"
+            echo "lxc_vm_list=$(echo -n "$LXC_VM_LIST")" >> "$GITHUB_OUTPUT"
             exit 0;
           fi
 
-          echo "No new vm."
-          echo "has_new_vm=false" >> "$GITHUB_OUTPUT"
+          echo "No new lxc."
+          echo "has_new_lxc_vm=false" >> "$GITHUB_OUTPUT"
 
-  # Extract Create VM で出力した has_new_vm が 1 のときだけ実行する
+  # Extract Create LXC で出力した has_new_vm が 1 のときだけ実行する
   proxmox-ansible:
     needs: terraform # job.terraform に依存するようにする
-    if: needs.terraform.outputs.has_new_vm == 'true'
+    if: needs.terraform.outputs.has_new_lxc_vm == 'true'
     runs-on: [self-hosted, proxmox-ansible]
 
     steps:
@@ -88,7 +88,7 @@ jobs:
 
       - name: Run Playbook
         run: |
-          ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars "vm_id=${VM_LIST}"
+          ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars "lxc_vm_id=${LXC_VM_LIST}"
         working-directory: ./ansible
         env:
-         VM_LIST: ${{needs.terraform.outputs.vm_list}}
+         LXC_VM_LIST: ${{needs.terraform.outputs.lxc_vm_list}}

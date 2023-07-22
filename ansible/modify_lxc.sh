@@ -5,18 +5,18 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-VM_LIST=$1
+LXC_VM_LIST=$1
 
-for VM_ID in `echo "$VM_LIST" | tr "," "\n"`
+for LXC_VM_ID in `echo "$LXC_VM_LIST" | tr "," "\n"`
 do
-  CONFIG_FILE="/etc/pve/lxc/$VM_ID.conf"
+  CONFIG_FILE="/etc/pve/lxc/$LXC_VM_ID.conf"
 
   if [ ! -f $CONFIG_FILE ]; then
-    echo "[$VM_ID] $(date): File Not Found. => $CONFIG_FILE\n"
+    echo "[$LXC_VM_ID] $(date): File Not Found. => $CONFIG_FILE\n"
     continue
   fi
 
-  echo "[$VM_ID] $(date): ファイルが見つかりました。設定を追記します。 => $CONFIG_FILE\n"
+  echo "[$LXC_VM_ID] $(date): ファイルが見つかりました。設定を追記します。 => $CONFIG_FILE\n"
 
   if ! grep -q "lxc.apparmor.profile" $CONFIG_FILE; then
     echo "lxc.apparmor.profile: unconfined" >> $CONFIG_FILE
@@ -37,4 +37,7 @@ do
   if ! grep -q "lxc.hook.start" $CONFIG_FILE; then
     echo "lxc.hook.start: sudo apt update && sudo apt-get install -y curl && curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/kubernetes/setup.sh?\$(date +%s) > /root/setup.sh && chmod +x /root/setup.sh && sudo /root/setup.sh" >> $CONFIG_FILE
   fi
+
+  # コンテナを起動
+  pct start $LXC_VM_ID
 done
