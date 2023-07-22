@@ -12,9 +12,29 @@ do
   CONFIG_FILE="/etc/pve/lxc/$VM_ID.conf"
 
   if [ ! -f $CONFIG_FILE ]; then
-    echo "$(date) File Not Found. $CONFIG_FILE\n"
+    echo "[$VM_ID] $(date): File Not Found. => $CONFIG_FILE\n"
     continue
   fi
 
-  echo "$(date) ファイルが見つかりました。 $CONFIG_FILE\n"
+  echo "[$VM_ID] $(date): ファイルが見つかりました。設定を追記します。 => $CONFIG_FILE\n"
+
+  if ! grep -q "lxc.apparmor.profile" $CONFIG_FILE; then
+    echo "lxc.apparmor.profile: unconfined" >> $CONFIG_FILE
+  fi
+
+  if ! grep -q "lxc.cap.drop" $CONFIG_FILE; then
+    echo "lxc.cap.drop:" >> $CONFIG_FILE
+  fi
+
+  if ! grep -q "lxc.cgroup.devices.allow" $CONFIG_FILE; then
+    echo "lxc.cgroup.devices.allow: a" >> $CONFIG_FILE
+  fi
+
+  if ! grep -q "lxc.mount.auto" $CONFIG_FILE; then
+    echo "lxc.mount.auto: proc:rw sys:rw" >> $CONFIG_FILE
+  fi
+
+  if ! grep -q "lxc.hook.start" $CONFIG_FILE; then
+    echo "lxc.hook.start: sudo apt update && sudo apt-get install -y curl && curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/kubernetes/setup.sh?\$(date +%s) > /root/setup.sh && chmod +x /root/setup.sh && sudo /root/setup.sh" >> $CONFIG_FILE
+  fi
 done
