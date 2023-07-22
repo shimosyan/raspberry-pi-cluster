@@ -123,5 +123,5 @@ SSH のセットアップになります。OpenSSH はインストールする�
 ## 参考資料
 
 - <https://github.com/pimox/pimox7/blob/master/docs/VM-Configuration.md>
-- <https://qiita.com/wancom/items/b62ac44e6c9f0d1c4048#vm%E3%82%92%E4%BD%9C%E6%88%90%E8%B5%B7%E5%8B%95%E3%81%99%E3%82%8B>
-- <https://zenn.dev/hatotk/articles/install-ubuntu-server-20-04-lts>
+- [RaspberryPiにProxmoxVEをインストールする](https://qiita.com/wancom/items/b62ac44e6c9f0d1c4048)
+- [Ubuntu Server 20.04 LTSをインストールする。](https://zenn.dev/hatotk/articles/install-ubuntu-server-20-04-lts)

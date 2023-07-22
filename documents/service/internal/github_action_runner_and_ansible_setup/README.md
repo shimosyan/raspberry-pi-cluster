@@ -145,3 +145,7 @@ ansible 192.168.6.33 -m ping
     "ping": "pong"
 }
 ```
+
+## 参考資料
+
+- [オンプレサーバにGitHubActions SelfHosted Runnerを立ててAnsibleをlocalhostに向けて構成管理する方法が便利そうでした](https://note.varu3.me/n/nbfdac1d0b05f)

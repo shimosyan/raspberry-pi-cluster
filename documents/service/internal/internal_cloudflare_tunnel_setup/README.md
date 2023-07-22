@@ -194,5 +194,5 @@ Cloudflare Access の作成ができたら、次は Cloudflare Tunnel の設定�
 
 ## 参考資料
 
-- <https://qiita.com/honahuku/items/5b7ef71d3b59c4649948>
-- <https://zenn.dev/come25136/articles/0952afd78e4922>
+- [proxmoxのWEB GUIをCloudflareを使って外からアクセスできるようにする](https://qiita.com/honahuku/items/5b7ef71d3b59c4649948)
+- [猫でもわかるCloudflare Access (Zero Trust)](https://zenn.dev/come25136/articles/0952afd78e4922)

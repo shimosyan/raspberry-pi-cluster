@@ -113,4 +113,4 @@ Realm は `Linux PAM standard authentication` を選択してください。
 
 ## 参考資料
 
-- <https://qiita.com/wancom/items/c6b5ca66ab421d696beb>
+- [RaspberryPiにProxmoxVEをインストールする(Bullseye対応)](https://qiita.com/wancom/items/c6b5ca66ab421d696beb)
