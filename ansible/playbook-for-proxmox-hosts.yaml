@@ -12,4 +12,5 @@
         cmd: chmod +x ~/modify_lxc.sh
 
     - name: Run Script
-      ansible.builtin.script: ~/modify_lxc.sh {{vm_id}}
+      ansible.builtin.shell:
+        cmd: sh ~/modify_lxc.sh {{vm_id}}
