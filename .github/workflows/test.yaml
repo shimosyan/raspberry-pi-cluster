@@ -52,7 +52,7 @@ jobs:
         run: terraform apply -auto-approve -parallelism=1 -no-color -input=false -var="root_pw=${{ secrets.DEFAULT_ROOT_PW }}"
         working-directory: ./proxmox
 
-      - name: Extract Create VM
+      - name: Extract Created VM
         id: extract
         env:
           DEPLOY_RESULT: "${{ steps.deploy.outputs.stdout }}" # terraform deploy の出力を変数に入れる
@@ -75,6 +75,7 @@ jobs:
 
   # Extract Create VM で出力した has_new_vm が 1 のときだけ実行する
   ansible:
+    needs: terraform # job.terraform に依存するようにする
     if: needs.terraform.outputs.has_new_vm == 'true'
     runs-on: [self-hosted, proxmox-ansible]
 
