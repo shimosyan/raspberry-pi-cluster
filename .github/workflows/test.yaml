@@ -57,7 +57,7 @@ jobs:
         env:
           DEPLOY_RESULT: "${{ steps.deploy.outputs.stdout }}" # terraform deploy の出力を変数に入れる
         run: |
-          EXTRACT_RESULT=$(echo "$DEPLOY_RESULT" | grep -E 'proxmox_lxc.k8s\[".+?"\]: Creation complete after .+? \[id=.+?\]')
+          EXTRACT_RESULT=$(echo "$DEPLOY_RESULT" | grep -E 'proxmox_lxc.k8s\[".+?"\]: Creation complete after .+? \[id=.+?\]' || true)
           echo "$EXTRACT_RESULT"
 
           echo "--------"
