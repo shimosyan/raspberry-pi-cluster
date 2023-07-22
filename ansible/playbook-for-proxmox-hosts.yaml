@@ -7,6 +7,10 @@
       ansible.builtin.shell:
         cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/modify_lxc.sh?$(date +%s) > ~/modify_lxc.sh
 
+    - name: Pull Container Script
+      ansible.builtin.shell:
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/kubernetes/setup.sh?$(date +%s) > ~/setup.sh
+
     - name: Grand Permission to Script
       ansible.builtin.shell:
         cmd: chmod +x ~/modify_lxc.sh

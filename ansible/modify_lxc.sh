@@ -34,10 +34,10 @@ do
     echo "lxc.mount.auto: proc:rw sys:rw" >> $CONFIG_FILE
   fi
 
-  if ! grep -q "lxc.hook.start" $CONFIG_FILE; then
-    echo "lxc.hook.start: sudo apt update && sudo apt-get install -y curl && curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/kubernetes/setup.sh?\$(date +%s) > /root/setup.sh && chmod +x /root/setup.sh && sudo /root/setup.sh" >> $CONFIG_FILE
-  fi
-
   # コンテナを起動
   pct start $LXC_VM_ID
+
+  # セットアップスクリプトを送信
+  pct push $LXC_VM_ID ./setup.sh /root/setup.sh
+  pct exec $LXC_VM_ID sudo -s && chmod +x  /root/setup.sh && /root/setup.sh
 done
