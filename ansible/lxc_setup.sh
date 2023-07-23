@@ -25,11 +25,11 @@ fi
 pct start $LXC_VM_ID
 
 # ~/scripts/container に該当するファイルが見つかれば、 LXC に転送して実行する。
-CONTAINER_SCRIPT_FILE="~/scripts/container/$SCRIPT_NAME.sh"
+CONTAINER_SCRIPT_FILE="/root/scripts/container/$SCRIPT_NAME.sh"
 
 if [ -e $CONTAINER_SCRIPT_FILE ]; then
   # セットアップスクリプトを送信
-  pct push $LXC_VM_ID ~/scripts/container/$LXC_SCRIPT_NAME.sh /root/setup.sh
+  pct push $LXC_VM_ID /root/scripts/container/$LXC_SCRIPT_NAME.sh /root/setup.sh
 
   pct exec $LXC_VM_ID chmod +x /root/setup.sh
   pct exec $LXC_VM_ID /root/setup.sh

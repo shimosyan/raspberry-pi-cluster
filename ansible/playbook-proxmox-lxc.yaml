@@ -32,29 +32,29 @@
 
     - name: Pull Script
       ansible.builtin.shell:
-        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/lxc_setup.sh?$(date +%s) > ~/lxc_setup.sh
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/lxc_setup.sh?$(date +%s) > /root/lxc_setup.sh
 
     - name: Grand Permission to Script
       ansible.builtin.shell:
-        cmd: chmod +x ~/lxc_setup.sh
+        cmd: chmod +x /root/lxc_setup.sh
 
     - name: Make Dir
       ansible.builtin.shell:
-        cmd: mkdir -p ~/scripts/host && mkdir -p ~/scripts/container
+        cmd: rm -r /root/scripts && mkdir -p /root/scripts/host && mkdir -p /root/scripts/container
 
     - name: Pull Host Script
       ansible.builtin.shell:
-        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/host/{{ item }}?$(date +%s) > ~/scripts/host/{{ item }}
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/host/{{ item }}?$(date +%s) > "/root/scripts/host/{{ item }}"
       loop: "{{ host_script_file_list }}"
 
     - name: Grand Permission to Host Script
       ansible.builtin.shell:
-        cmd: chmod +x ~/scripts/host/{{ item }}
+        cmd: chmod +x "/root/scripts/host/{{ item }}"
         loop: "{{ host_script_file_list }}"
 
     - name: Pull Container Script
       ansible.builtin.shell:
-        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/container/{{ item }}?$(date +%s) > ~/scripts/container/{{ item }}
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/container/{{ item }}?$(date +%s) > "/root/scripts/container/{{ item }}"
       loop: "{{ container_script_file_list }}"
 
 
