@@ -53,7 +53,7 @@ jobs:
         run: terraform apply -auto-approve -parallelism=1 -no-color -input=false -var="root_pw=${{ secrets.DEFAULT_ROOT_PW }}"
         working-directory: ./proxmox
 
-      # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから LXC の VM ID のみ抽出し複数の場合はカンマ区切りに整形する
+      # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから LXC の VM ID と terraform の Resource ID を抽出し複数の場合はカンマ区切りに整形する
       - name: Extract Created LXC VM ID
         id: extract
         env:
@@ -62,9 +62,10 @@ jobs:
           EXTRACT_RESULT=$(echo "$DEPLOY_RESULT" | grep -E 'proxmox_lxc.k8s\[".+?"\]: Creation complete after .+? \[id=.+?\]' || true)
 
           if [ ! -z "$EXTRACT_RESULT" ]; then
-            LXC_VM_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^.\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\1/gi' )
+            LXC_VM_ID_RES_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^proxmox_lxc\.\([a-zA-Z0-9_-]\+\).\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\2:\1/gi' )
 
-            LXC_VM_LIST=$(echo "$LXC_VM_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
+            # e.g 100:sample1,102:sample2
+            LXC_VM_LIST=$(echo "$LXC_VM_ID_RES_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
             echo -n "New LXC VM List = $LXC_VM_LIST"
 
             echo "lxc_vm_list=$(echo -n "$LXC_VM_LIST")" >> "$GITHUB_OUTPUT"

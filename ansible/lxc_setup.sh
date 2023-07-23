@@ -5,7 +5,13 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-LXC_VM_ID=$1
+LXC_VM_ID_RES_ID=$1
+
+# コロン区切りを分割する
+ARR=(${LXC_VM_ID_RES_ID//:/ })
+
+LXC_VM_ID=${ARR[0]}
+LXC_RES_ID=${ARR[1]}
 
 CONFIG_FILE="/etc/pve/lxc/$LXC_VM_ID.conf"
 
