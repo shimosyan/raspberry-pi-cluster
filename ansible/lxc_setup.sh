@@ -8,16 +8,20 @@ fi
 LXC_VM_ID=$1
 LXC_RES_ID=$2
 
+echo "LXC_VM_ID = $LXC_VM_ID, LXC_RES_ID = $LXC_RES_ID"
+
 # LXC_RES_ID からアンダースコアで分割し、1つ目を SCRIPT NAME として使用する
 SPLIT=(${LXC_VM_ID_RES_ID//_/ })
 
 SCRIPT_NAME=${SPLIT[0]}
 
-# ~/scripts/host に該当するファイルが見つかれば、そちらに処理を実行し終了する。
-HOST_SCRIPT_FILE="~/scripts/host/$SCRIPT_NAME.sh"
+echo "SCRIPT_NAME = $SCRIPT_NAME"
+
+# /root/scripts/host に該当するファイルが見つかれば、そちらに処理を実行し終了する。
+HOST_SCRIPT_FILE="/root/scripts/host/$SCRIPT_NAME.sh"
 
 if [ -e $HOST_SCRIPT_FILE ]; then
-  $HOST_SCRIPT_FILE
+  $HOST_SCRIPT_FILE $LXC_VM_ID $SCRIPT_NAME
   exit 0;
 fi
 
