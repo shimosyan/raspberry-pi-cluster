@@ -1,9 +1,9 @@
 # key は自動で hostname に使用されます
 test-1:
-  enable: true # true にするとインスタンスが作成されます。
+  enable: false # true にするとインスタンスが作成されます。
 
   vmid: 103
-  target_node: "raspi-4gb-1"
+  target_node: "raspi-8gb-1"
   unprivileged: false
   onboot: true
   cpu: 2
@@ -13,14 +13,14 @@ test-1:
   ip: 192.168.6.68/24
 
 test-2:
-  enable: false # true にするとインスタンスが作成されます。
+  enable: true # true にするとインスタンスが作成されます。
 
   vmid: 104
   target_node: "raspi-8gb-1"
   unprivileged: false
   onboot: true
   cpu: 2
-  memory: 2048
+  memory: 1024
   swap: 0
   storage: 8G
   ip: 192.168.6.69/24
