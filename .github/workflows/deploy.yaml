@@ -103,7 +103,7 @@ jobs:
           echo "HOST_FILE_LIST=$HOST_FILE_LIST" >> $GITHUB_ENV
           echo "CONTAINER_FILE_LIST=$CONTAINER_FILE_LIST" >> $GITHUB_ENV
 
-        working-directory: script/lxc
+        working-directory: scripts/lxc
       - name: Run Playbook
         run: |
           ansible-playbook playbook-proxmox-lxc.yaml.yaml --extra-vars 'lxc_vm_id=${LXC_VM_LIST},host_script_file="${{ env.HOST_FILE_LIST }}",container_script_file="${{ env.CONTAINER_FILE_LIST }}"'
