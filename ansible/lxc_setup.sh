@@ -1,61 +1,36 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]; then
-  echo "実行するには1個の引数が必要です。対象の VM ID を指定してください。" 1>&2
+if [ $# -ne 2 ]; then
+  echo "実行するには2個の引数が必要です。対象の VM ID と RES ID を指定してください。" 1>&2
   exit 1
 fi
 
-LXC_VM_ID_RES_ID=$1
+LXC_VM_ID=$1
+LXC_RES_ID=$2
 
-# コロン区切りを分割する
-LIST=(${LXC_VM_ID_RES_ID//:/ })
+# LXC_RES_ID からアンダースコアで分割し、1つ目を SCRIPT NAME として使用する
+SPLIT=(${LXC_VM_ID_RES_ID//_/ })
 
-LXC_VM_ID=${LIST[0]}
-LXC_RES_ID=${LIST[1]}
+SCRIPT_NAME=${SPLIT[0]}
 
-CONFIG_FILE="/etc/pve/lxc/$LXC_VM_ID.conf"
+# ~/scripts/host に該当するファイルが見つかれば、そちらに処理を実行し終了する。
+HOST_SCRIPT_FILE="~/scripts/host/$SCRIPT_NAME.sh"
 
-if [ ! -f $CONFIG_FILE ]; then
-  echo "[$LXC_VM_ID] $(date): File Not Found. => $CONFIG_FILE\n"
+if [ -e $HOST_SCRIPT_FILE ]; then
+  $HOST_SCRIPT_FILE
   exit 0;
 fi
 
-echo "[$LXC_VM_ID] $(date): ファイルが見つかりました。設定を追記します。 => $CONFIG_FILE\n"
-
-if ! grep -q "features" $CONFIG_FILE; then
-  pct set $LXC_VM_ID --features fuse=1,keyctl=1,nesting=1
-fi
-
-if ! grep -q "lxc.apparmor.profile" $CONFIG_FILE; then
-  echo "lxc.apparmor.profile: unconfined" >> $CONFIG_FILE
-fi
-
-if ! grep -q "lxc.cap.drop" $CONFIG_FILE; then
-  echo "lxc.cap.drop:" >> $CONFIG_FILE
-fi
-
-if ! grep -q "lxc.cgroup.devices.allow" $CONFIG_FILE; then
-  echo "lxc.cgroup.devices.allow: a" >> $CONFIG_FILE
-fi
-
-if ! grep -q "lxc.mount.auto" $CONFIG_FILE; then
-  echo "lxc.mount.auto: proc:rw sys:rw" >> $CONFIG_FILE
-fi
-
-#コンテナを一旦起動
+#コンテナを起動
 pct start $LXC_VM_ID
 
-# カーネル参照先のディレクトリを作成
-pct exec $LXC_VM_ID -- mkdir -p /usr/lib/modules
+# ~/scripts/container に該当するファイルが見つかれば、 LXC に転送して実行する。
+CONTAINER_SCRIPT_FILE="~/scripts/container/$SCRIPT_NAME.sh"
 
-# マウントを追加
-if ! grep -q "lxc.mount.entry" $CONFIG_FILE; then
-  echo "lxc.mount.entry: /usr/lib/modules usr/lib/modules none bind 0 0" >> $CONFIG_FILE
+if [ -e $CONTAINER_SCRIPT_FILE ]; then
+  # セットアップスクリプトを送信
+  pct push $LXC_VM_ID ~/scripts/container/$LXC_SCRIPT_NAME.sh /root/setup.sh
+
+  pct exec $LXC_VM_ID chmod +x /root/setup.sh
+  pct exec $LXC_VM_ID /root/setup.sh
 fi
-
-# コンテナを再起動
-pct reboot $LXC_VM_ID
-
-# セットアップスクリプトを送信
-pct push $LXC_VM_ID ./setup.sh /root/setup.sh
-pct exec $LXC_VM_ID sh /root/setup.sh

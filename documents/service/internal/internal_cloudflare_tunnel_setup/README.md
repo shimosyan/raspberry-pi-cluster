@@ -82,9 +82,9 @@ Cloudflare Zero Trust をセットアップします。
 
 ```sh
 sudo -s
-curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/scripts/setup-cloudflare-internal.sh?$(date +%s) > setup-cloudflare-internal.sh
-chmod +x setup-cloudflare-internal.sh
-./setup-cloudflare-internal.sh <token>
+curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/scripts/lxc/container/cloudflare-internal.sh?$(date +%s) > cloudflare-internal.sh
+chmod +x cloudflare-internal.sh
+./cloudflare-internal.sh <token>
 ```
 
 ## Cloudflare Tunnel の設定

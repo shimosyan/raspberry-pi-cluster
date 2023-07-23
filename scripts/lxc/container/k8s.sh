@@ -10,8 +10,9 @@ if [ -e $FILE ]; then
   exit 0;
 fi
 
-
+echo "1" > $FILE
 exit 0;
+
 # k8s をセットアップする
 apt update
 

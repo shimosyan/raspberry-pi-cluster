@@ -2,33 +2,68 @@
   become: yes
   vars:
     lxc_vm_id: 100
+    host_script_file: ""
+    container_script_file: ""
 
   tasks:
     # カンマ区切りを Ansible の配列にする
-    - name: Create the list
+    - name: Create the vm list 1
       set_fact:
-        lxc_vm_id_list: "{{ lxc_vm_id.split(',') }}"
+        lxc_vm_list_raw: "{{ lxc_vm_id.split(',') }}"
 
-    - debug: var=lxc_vm_id_list
+    - name: Create the vm list 2
+      set_fact:
+        lxc_vm_list: "{{ lxc_vm_list | default([]) + [ { 'id': item.split(':')[0], 'resource': item.split(':')[1] } ] }}"
+      loop: '{{ lxc_vm_list_raw }}'
+
+    - debug: var=lxc_vm_list
+
+    - name: Create the host script file list
+      set_fact:
+        host_script_file_list: "{{ host_script_file.split(',') }}"
+
+    - name: Create the container script file list
+      set_fact:
+        container_script_file_list: "{{ container_script_file.split(',') }}"
+
+    - debug: var=host_script_file_list
+
+    - debug: var=container_script_file_list
 
     - name: Pull Script
       ansible.builtin.shell:
         cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/lxc_setup.sh?$(date +%s) > ~/lxc_setup.sh
 
-    - name: Pull Container Script
-      ansible.builtin.shell:
-        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/kubernetes/setup.sh?$(date +%s) > ~/setup.sh
-
     - name: Grand Permission to Script
       ansible.builtin.shell:
         cmd: chmod +x ~/lxc_setup.sh
 
+    - name: Make Dir
+      ansible.builtin.shell:
+        cmd: mkdir -p ~/scripts/host && mkdir -p ~/scripts/container
+
+    - name: Pull Host Script
+      ansible.builtin.shell:
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/host/{{ item }}?$(date +%s) > ~/scripts/host/{{ item }}
+      loop: '{{ host_script_file_list }}'
+
+    - name: Grand Permission to Host Script
+      ansible.builtin.shell:
+        cmd: chmod +x ~/scripts/host/{{ item }}
+        loop: '{{ host_script_file_list }}'
+
+    - name: Pull Container Script
+      ansible.builtin.shell:
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/container/{{ item }}?$(date +%s) > ~/scripts/container/{{ item }}
+      loop: '{{ container_script_file_list }}'
+
+
     # 配列の個数だけ全ノードに対して繰り返し実行する（対象じゃないノードは無視される）
     - name: Run Script
       ansible.builtin.shell:
-        cmd: bash ~/lxc_setup.sh {{ item }}
+        cmd: ~/lxc_setup.sh {{ item.id }} {{ item.resource }}
       register: return_from_shell # 実行結果を ansible 変数に入れる
-      loop: '{{ lxc_vm_id_list }}'
+      loop: '{{ lxc_vm_list }}'
 
     - name: Show Script Result
       debug:

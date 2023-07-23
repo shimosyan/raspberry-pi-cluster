@@ -89,9 +89,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get Script List
+        run: |
+          HOST_FILE=$(ls -F ./host  | grep -v / | sed "s/*//g")
+          CONTAINER_FILE=$(ls -F ./container  | grep -v / | sed "s/*//g")
+
+          HOST_FILE_LIST=$(echo "$HOST_FILE" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
+          CONTAINER_FILE_LIST=$(echo "$CONTAINER_FILE" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
+
+          echo -n "HOST_FILE_LIST = $HOST_FILE_LIST"
+          echo -n "CONTAINER_FILE_LIST = $CONTAINER_FILE_LIST"
+
+          echo "HOST_FILE_LIST=$HOST_FILE_LIST" >> $GITHUB_ENV
+          echo "CONTAINER_FILE_LIST=$CONTAINER_FILE_LIST" >> $GITHUB_ENV
+
+        working-directory: ./script/lxc
       - name: Run Playbook
         run: |
-          ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars "lxc_vm_id=${LXC_VM_LIST}"
+          ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars 'lxc_vm_id=${LXC_VM_LIST},host_script_file="${{ env.HOST_FILE_LIST }}",container_script_file="${{ env.CONTAINER_FILE_LIST }}"'
         working-directory: ./ansible
         env:
           LXC_VM_LIST: ${{needs.terraform.outputs.lxc_vm_list}}
