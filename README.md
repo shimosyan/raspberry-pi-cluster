@@ -1,5 +1,7 @@
 # raspberry-pi-cluster
 
+[![Proxmox Deploy](https://github.com/shimosyan/raspberry-pi-cluster/actions/workflows/deploy.yaml/badge.svg?branch=main)](https://github.com/shimosyan/raspberry-pi-cluster/actions/workflows/deploy.yaml)
+
 Raspberry PI Cluster による自宅サーバーの運用リポジトリです。
 
 各マニュアルから備忘録まで含みます。
