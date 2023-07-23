@@ -44,7 +44,7 @@
 
     - name: Pull Host Script
       ansible.builtin.shell:
-        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/host/{{ item }}?$(date +%s) > "/root/scripts/host/{{ item }}"
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/scripts/lxc/host/{{ item }}?$(date +%s) > "/root/scripts/host/{{ item }}"
       loop: "{{ host_script_file_list }}"
 
     - name: Grand Permission to Host Script
@@ -54,7 +54,7 @@
 
     - name: Pull Container Script
       ansible.builtin.shell:
-        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/container/{{ item }}?$(date +%s) > "/root/scripts/container/{{ item }}"
+        cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/scripts/lxc/container/{{ item }}?$(date +%s) > "/root/scripts/container/{{ item }}"
       loop: "{{ container_script_file_list }}"
 
 
