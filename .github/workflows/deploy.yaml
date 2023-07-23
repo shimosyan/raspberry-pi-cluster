@@ -14,7 +14,6 @@ jobs:
       PM_HTTP_HEADERS: CF-Access-Client-Id,${{ secrets.CF_ACCESS_CLIENT_ID }},CF-Access-Client-Secret,${{ secrets.CF_ACCESS_CLIENT_SECRET }}
 
     outputs:
-      has_new_lxc_vm: ${{ steps.extract.outputs.has_new_lxc_vm }}
       lxc_vm_list: ${{ steps.extract.outputs.lxc_vm_list }}
 
     steps:
@@ -68,18 +67,16 @@ jobs:
             LXC_VM_LIST=$(echo "$LXC_VM_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
             echo -n "New k8s LXC VM List = $LXC_VM_LIST"
 
-            echo "has_new_lxc_vm=true" >> "$GITHUB_OUTPUT"
             echo "lxc_vm_list=$(echo -n "$LXC_VM_LIST")" >> "$GITHUB_OUTPUT"
             exit 0;
           fi
 
           echo "No new k8s lxc."
-          echo "has_new_lxc_vm=false" >> "$GITHUB_OUTPUT"
 
-  # Extract Create LXC で出力した has_new_vm が 1 のときだけ実行する
-  proxmox-kubernetes-ansible:
+  # Extract Create LXC で出力した lxc_vm_list に登録されているときだけ実行する
+  ansible-for-proxmox:
     needs: terraform # job.terraform に依存するようにする
-    if: needs.terraform.outputs.has_new_lxc_vm == 'true'
+    if: needs.terraform.outputs.lxc_vm_list != ''
     runs-on: [self-hosted, proxmox-ansible]
 
     steps:
