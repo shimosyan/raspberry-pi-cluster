@@ -8,10 +8,10 @@ fi
 LXC_VM_ID_RES_ID=$1
 
 # コロン区切りを分割する
-ARR=(${LXC_VM_ID_RES_ID//:/ })
+LIST=(${LXC_VM_ID_RES_ID//:/ })
 
-LXC_VM_ID=${ARR[0]}
-LXC_RES_ID=${ARR[1]}
+LXC_VM_ID=${LIST[0]}
+LXC_RES_ID=${LIST[1]}
 
 CONFIG_FILE="/etc/pve/lxc/$LXC_VM_ID.conf"
 

@@ -26,7 +26,7 @@
     # 配列の個数だけ全ノードに対して繰り返し実行する（対象じゃないノードは無視される）
     - name: Run Script
       ansible.builtin.shell:
-        cmd: sh ~/lxc_setup.sh {{ item }}
+        cmd: bash ~/lxc_setup.sh {{ item }}
       register: return_from_shell # 実行結果を ansible 変数に入れる
       loop: '{{ lxc_vm_id_list }}'
 
