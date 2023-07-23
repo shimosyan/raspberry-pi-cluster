@@ -61,8 +61,10 @@ jobs:
         run: |
           EXTRACT_RESULT=$(echo "$DEPLOY_RESULT" | grep -E 'proxmox_lxc\..+?: Creation complete after .+? \[id=.+?\]' || true)
 
+          echo "$EXTRACT_RESULT"
+
           if [ ! -z "$EXTRACT_RESULT" ]; then
-            LXC_VM_ID_RES_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^.\+proxmox_lxc\.\([a-zA-Z0-9_-]\+\).\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\2:\1/gi' )
+            LXC_VM_ID_RES_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^proxmox_lxc\.\([a-zA-Z0-9_-]\+\).\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\2:\1/gi' )
 
             # e.g 100:sample1,102:sample2
             LXC_VM_LIST=$(echo "$LXC_VM_ID_RES_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
