@@ -11,7 +11,7 @@ CONFIG_FILE="/etc/pve/lxc/$LXC_VM_ID.conf"
 
 if [ ! -f $CONFIG_FILE ]; then
   echo "[$LXC_VM_ID] $(date): File Not Found. => $CONFIG_FILE\n"
-  continue
+  exit 0;
 fi
 
 echo "[$LXC_VM_ID] $(date): ファイルが見つかりました。設定を追記します。 => $CONFIG_FILE\n"
