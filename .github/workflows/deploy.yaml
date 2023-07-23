@@ -36,22 +36,22 @@ jobs:
 
       - name: Proxmox Terraform Init
         run: terraform init
-        working-directory: ./proxmox
+        working-directory: proxmox
 
       - name: Proxmox Terraform Format
         id: fmt
         run: terraform fmt -recursive -check
-        working-directory: ./proxmox
+        working-directory: proxmox
 
       - name: Proxmox Terraform Plan
         id: plan
         run: terraform plan -parallelism=1 -no-color -input=false -var="root_pw=${{ secrets.DEFAULT_ROOT_PW }}"
-        working-directory: ./proxmox
+        working-directory: proxmox
 
       - name: Proxmox Terraform Deploy
         id: deploy
         run: terraform apply -auto-approve -parallelism=1 -no-color -input=false -var="root_pw=${{ secrets.DEFAULT_ROOT_PW }}"
-        working-directory: ./proxmox
+        working-directory: proxmox
 
       # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから LXC の VM ID と terraform の Resource ID を抽出し複数の場合はカンマ区切りに整形する
       - name: Extract Created LXC VM ID
@@ -103,10 +103,10 @@ jobs:
           echo "HOST_FILE_LIST=$HOST_FILE_LIST" >> $GITHUB_ENV
           echo "CONTAINER_FILE_LIST=$CONTAINER_FILE_LIST" >> $GITHUB_ENV
 
-        working-directory: ./script/lxc
+        working-directory: script/lxc
       - name: Run Playbook
         run: |
-          ansible-playbook playbook-for-proxmox-hosts.yaml --extra-vars 'lxc_vm_id=${LXC_VM_LIST},host_script_file="${{ env.HOST_FILE_LIST }}",container_script_file="${{ env.CONTAINER_FILE_LIST }}"'
-        working-directory: ./ansible
+          ansible-playbook playbook-proxmox-lxc.yaml.yaml --extra-vars 'lxc_vm_id=${LXC_VM_LIST},host_script_file="${{ env.HOST_FILE_LIST }}",container_script_file="${{ env.CONTAINER_FILE_LIST }}"'
+        working-directory: ansible
         env:
           LXC_VM_LIST: ${{needs.terraform.outputs.lxc_vm_list}}
