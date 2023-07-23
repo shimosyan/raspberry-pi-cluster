@@ -106,7 +106,7 @@ jobs:
         working-directory: scripts/lxc
       - name: Run Playbook
         run: |
-          ansible-playbook playbook-proxmox-lxc.yaml --extra-vars 'lxc_vm_id=${{ env.LXC_VM_LIST }},host_script_file="${{ env.HOST_FILE_LIST }}",container_script_file="${{ env.CONTAINER_FILE_LIST }}"'
+          ansible-playbook playbook-proxmox-lxc.yaml --extra-vars 'lxc_vm_id="${{ env.LXC_VM_LIST }}",host_script_file="${{ env.HOST_FILE_LIST }}",container_script_file="${{ env.CONTAINER_FILE_LIST }}"'
         working-directory: ansible
         env:
           LXC_VM_LIST: ${{needs.terraform.outputs.lxc_vm_list}}
