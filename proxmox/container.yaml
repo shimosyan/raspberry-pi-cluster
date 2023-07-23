@@ -1,6 +1,6 @@
 # key は自動で hostname に使用されます
 test-1:
-  enable: test # true にするとインスタンスが作成されます。
+  enable: true # true にするとインスタンスが作成されます。
 
   vmid: 103
   target_node: "raspi-4gb-1"
