@@ -9,8 +9,7 @@
       set_fact:
         lxc_vm_id_list: "{{ lxc_vm_id.split(',') }}"
 
-    - debug:
-      var: lxc_vm_id_list
+    - debug: var=lxc_vm_id_list
 
     - name: Pull Script
       ansible.builtin.shell:
