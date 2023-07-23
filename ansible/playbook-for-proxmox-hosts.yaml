@@ -9,6 +9,9 @@
       set_fact:
         lxc_vm_id_list: "{{ lxc_vm_id.split(',') }}"
 
+    - debug:
+      var: lxc_vm_id_list
+
     - name: Pull Script
       ansible.builtin.shell:
         cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/lxc_setup.sh?$(date +%s) > ~/lxc_setup.sh
@@ -30,4 +33,5 @@
 
     - name: Show Script Result
       debug:
-        msg: "{{ return_from_shell.stdout }}" # .stdout に標準出力の結果が入っている
+        msg: "{{ item.stdout }}" # .stdout に標準出力の結果が入っている
+      loop: "{{ return_from_shell.results | from_yaml | list }}"
