@@ -4,6 +4,7 @@
     lxc_vm_id: 100
 
   tasks:
+    # カンマ区切りを Ansible の配列にする
     - name: Create the list
       set_fact:
         lxc_vm_id_list: "{{ lxc_vm_id.split(',') }}"
@@ -20,6 +21,7 @@
       ansible.builtin.shell:
         cmd: chmod +x ~/lxc_setup.sh
 
+    # 配列の個数だけ全ノードに対して繰り返し実行する（対象じゃないノードは無視される）
     - name: Run Script
       ansible.builtin.shell:
         cmd: sh ~/lxc_setup.sh {{ item }}
