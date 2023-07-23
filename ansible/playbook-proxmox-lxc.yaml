@@ -7,14 +7,14 @@
 
   tasks:
     # カンマ区切りを Ansible の配列にする
-    - name: Create the vm list 1
+    - name: Create the temp vm list
       set_fact:
         lxc_vm_list_raw: "{{ lxc_vm_id.split(',') }}"
 
-    - name: Create the vm list 2
+    - name: Create the vm list
       set_fact:
         lxc_vm_list: "{{ lxc_vm_list | default([]) + [ { 'id': item.split(':')[0], 'resource': item.split(':')[1] } ] }}"
-      loop: '{{ lxc_vm_list_raw }}'
+      loop: "{{ lxc_vm_list_raw }}"
 
     - debug: var=lxc_vm_list
 
@@ -45,17 +45,17 @@
     - name: Pull Host Script
       ansible.builtin.shell:
         cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/host/{{ item }}?$(date +%s) > ~/scripts/host/{{ item }}
-      loop: '{{ host_script_file_list }}'
+      loop: "{{ host_script_file_list }}"
 
     - name: Grand Permission to Host Script
       ansible.builtin.shell:
         cmd: chmod +x ~/scripts/host/{{ item }}
-        loop: '{{ host_script_file_list }}'
+        loop: "{{ host_script_file_list }}"
 
     - name: Pull Container Script
       ansible.builtin.shell:
         cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/script/lxc/container/{{ item }}?$(date +%s) > ~/scripts/container/{{ item }}
-      loop: '{{ container_script_file_list }}'
+      loop: "{{ container_script_file_list }}"
 
 
     # 配列の個数だけ全ノードに対して繰り返し実行する（対象じゃないノードは無視される）
@@ -63,7 +63,7 @@
       ansible.builtin.shell:
         cmd: ~/lxc_setup.sh {{ item.id }} {{ item.resource }}
       register: return_from_shell # 実行結果を ansible 変数に入れる
-      loop: '{{ lxc_vm_list }}'
+      loop: "{{ lxc_vm_list }}"
 
     - name: Show Script Result
       debug:
