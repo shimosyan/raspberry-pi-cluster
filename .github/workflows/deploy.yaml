@@ -54,7 +54,7 @@ jobs:
         working-directory: ./proxmox
 
       # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから LXC の VM ID のみ抽出し複数の場合はカンマ区切りに整形する
-      - name: Extract Created k8s LXC VM ID
+      - name: Extract Created LXC VM ID
         id: extract
         env:
           DEPLOY_RESULT: "${{ steps.deploy.outputs.stdout }}" # terraform deploy の出力を変数に入れる
@@ -65,13 +65,13 @@ jobs:
             LXC_VM_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^.\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\1/gi' )
 
             LXC_VM_LIST=$(echo "$LXC_VM_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
-            echo -n "New k8s LXC VM List = $LXC_VM_LIST"
+            echo -n "New LXC VM List = $LXC_VM_LIST"
 
             echo "lxc_vm_list=$(echo -n "$LXC_VM_LIST")" >> "$GITHUB_OUTPUT"
             exit 0;
           fi
 
-          echo "No new k8s lxc."
+          echo "No new lxc."
 
   # Extract Create LXC で出力した lxc_vm_list に登録されているときだけ実行する
   ansible-for-proxmox:
