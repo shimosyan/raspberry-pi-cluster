@@ -2,7 +2,12 @@
   become: yes
   vars:
     lxc_vm_id: 100
+
   tasks:
+    - name: Create the list
+      set_fact:
+        lxc_vm_id_list: "{{ lxc_vm_id.split(',') }}"
+
     - name: Pull Script
       ansible.builtin.shell:
         cmd: curl https://raw.githubusercontent.com/shimosyan/raspberry-pi-cluster/master/ansible/lxc_setup.sh?$(date +%s) > ~/lxc_setup.sh
@@ -17,8 +22,9 @@
 
     - name: Run Script
       ansible.builtin.shell:
-        cmd: sh ~/lxc_setup.sh {{lxc_vm_id}}
+        cmd: sh ~/lxc_setup.sh {{ item }}
       register: return_from_shell # 実行結果を ansible 変数に入れる
+      loop: '{{ lxc_vm_id_list }}'
 
     - name: Show Script Result
       debug:
