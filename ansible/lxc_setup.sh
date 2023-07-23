@@ -10,8 +10,15 @@ LXC_RES_ID=$2
 
 echo "LXC_VM_ID = $LXC_VM_ID, LXC_RES_ID = $LXC_RES_ID"
 
+CONFIG_FILE="/etc/pve/lxc/$LXC_VM_ID.conf"
+
+if [ ! -f $CONFIG_FILE ]; then
+  echo "[$LXC_VM_ID] $(date): File Not Found. => $CONFIG_FILE\n"
+  exit 0;
+fi
+
 # LXC_RES_ID からアンダースコアで分割し、1つ目を SCRIPT NAME として使用する
-SPLIT=(${LXC_VM_ID_RES_ID//_/ })
+SPLIT=(${LXC_RES_ID//_/ })
 
 SCRIPT_NAME=${SPLIT[0]}
 
