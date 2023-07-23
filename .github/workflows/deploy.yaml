@@ -78,7 +78,7 @@ jobs:
           echo "No new lxc."
 
   # Extract Create LXC で出力した lxc_vm_list に登録されているときだけ実行する
-  ansible-for-proxmox:
+  ansible-for-proxmox-lxc:
     needs: terraform # job.terraform に依存するようにする
     if: needs.terraform.outputs.lxc_vm_list != ''
     runs-on: [self-hosted, proxmox-ansible]
