@@ -1,11 +1,11 @@
 resource "proxmox_lxc" "k8s_1" {
   # Enable Switch, 1 = true, 0 = false
-  count = 0
+  count = 1
 
   vmid         = 103
   hostname     = "test-1"
   target_node  = "raspi-8gb-1"
-  ostemplate   = var.lxc_os_template
+  ostemplate   = var.lxc_os_template_debian
   arch         = "arm64"
   ostype       = "ubuntu"
   unprivileged = false
@@ -35,12 +35,12 @@ resource "proxmox_lxc" "k8s_1" {
 
 resource "proxmox_lxc" "k8s_2" {
   # Enable Switch, 1 = true, 0 = false
-  count = 1
+  count = 0
 
   vmid         = 104
   hostname     = "test-2"
   target_node  = "raspi-8gb-1"
-  ostemplate   = var.lxc_os_template
+  ostemplate   = var.lxc_os_template_debian
   arch         = "arm64"
   ostype       = "ubuntu"
   unprivileged = false

@@ -5,7 +5,7 @@ resource "proxmox_lxc" "github_action_runner_and_ansible" {
   vmid         = 102
   hostname     = "github-action-runner-and-ansible"
   target_node  = "raspi-4gb-2"
-  ostemplate   = var.lxc_os_template
+  ostemplate   = var.lxc_os_template_ubuntu
   arch         = "arm64"
   ostype       = "ubuntu"
   unprivileged = false
