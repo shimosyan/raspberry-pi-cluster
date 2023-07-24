@@ -8,7 +8,10 @@
 
 Ubuntu の LXC イメージを [配布サイト](https://uk.lxd.images.canonical.com/images/)からダウンロード URL を入手します。amd64 は使用できないので注意してください。
 
-本手順では、`Ubuntu 22.04` にあたる `ubuntu/jammy/arm64/default` を使用します。
+本手順では、以下の2つを使用します。
+
+- `Ubuntu 22.04`: `ubuntu/jammy/arm64/default`
+- `Debian 11`: `debian/bullseye/arm64/default`
 
 この階層のとおりに遷移して、最新の日付のディレクトリを開いて `rootfs.tar.xz` のダウンロード URL を入手します。
 
@@ -22,6 +25,9 @@ Ubuntu の LXC イメージを [配布サイト](https://uk.lxd.images.canonical
 
 入力が終わったら「クエリURL」をクリックします。
 
-ファイル名称などの情報が得られまずが、わかりにくいので `ubuntu-jammy-arm64-default.tar.xz` に変更します。
+ファイル名称などの情報が得られまずが、わかりにくいので以下のように変更します。
+
+- `Ubuntu 22.04`: `ubuntu-jammy-arm64-default.tar.xz`
+- `Debian 11`: `debian-bullseye-arm64-default.tar.xz`
 
 問題なければ「ダウンロード」を実行します。

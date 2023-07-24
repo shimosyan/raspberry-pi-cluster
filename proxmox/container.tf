@@ -7,7 +7,7 @@ resource "proxmox_lxc" "k8s_1" {
   target_node  = "raspi-8gb-1"
   ostemplate   = var.lxc_os_template_debian
   arch         = "arm64"
-  ostype       = "ubuntu"
+  ostype       = "debian"
   unprivileged = false
   onboot       = true
   cores        = 2
@@ -42,7 +42,7 @@ resource "proxmox_lxc" "k8s_2" {
   target_node  = "raspi-8gb-1"
   ostemplate   = var.lxc_os_template_debian
   arch         = "arm64"
-  ostype       = "ubuntu"
+  ostype       = "debian"
   unprivileged = false
   onboot       = true
   cores        = 2
