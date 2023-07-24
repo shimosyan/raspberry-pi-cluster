@@ -63,7 +63,7 @@
 
 ```sh
 sudo apt update
-sudo apt-get install -y curl
+sudo apt install -y curl
 ```
 
 ## Cloudflare Tunnel の準備

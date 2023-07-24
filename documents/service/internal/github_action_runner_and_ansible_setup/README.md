@@ -136,7 +136,7 @@ cd ~/
 
 ```sh
 sudo apt update
-sudo apt-get install -y curl software-properties-common
+sudo apt install -y curl software-properties-common
 sudo apt-add-repository --yes --update ppa:ansible/ansible
 sudo apt install -y ansible
 ```
