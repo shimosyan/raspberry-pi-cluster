@@ -1,6 +1,6 @@
 resource "proxmox_lxc" "minecraft_1" {
   # Enable Switch, 1 = true, 0 = false
-  count = 1
+  count = 0
 
   vmid         = 103
   hostname     = "minecraft-1"
@@ -8,7 +8,7 @@ resource "proxmox_lxc" "minecraft_1" {
   ostemplate   = var.lxc_os_template_ubuntu
   arch         = "arm64"
   ostype       = "ubuntu"
-  unprivileged = true
+  unprivileged = false # NFS のマウントで必要
   onboot       = true
   cores        = 2
   memory       = 2048
@@ -35,7 +35,7 @@ resource "proxmox_lxc" "minecraft_1" {
 
 resource "proxmox_lxc" "minecraft_2" {
   # Enable Switch, 1 = true, 0 = false
-  count = 0
+  count = 1
 
   vmid         = 104
   hostname     = "minecraft-2"
@@ -43,7 +43,7 @@ resource "proxmox_lxc" "minecraft_2" {
   ostemplate   = var.lxc_os_template_ubuntu
   arch         = "arm64"
   ostype       = "ubuntu"
-  unprivileged = true
+  unprivileged = false # NFS のマウントで必要
   onboot       = true
   cores        = 2
   memory       = 2048
