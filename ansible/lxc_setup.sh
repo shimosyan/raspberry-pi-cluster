@@ -40,7 +40,7 @@ CONTAINER_SCRIPT_FILE="/root/scripts/container/$SCRIPT_NAME.sh"
 
 if [ -e $CONTAINER_SCRIPT_FILE ]; then
   # セットアップスクリプトを送信
-  pct push $LXC_VM_ID /root/scripts/container/$LXC_SCRIPT_NAME.sh /root/setup.sh
+  pct push $LXC_VM_ID /root/scripts/container/$SCRIPT_NAME.sh /root/setup.sh
 
   pct exec $LXC_VM_ID chmod +x /root/setup.sh
   pct exec $LXC_VM_ID /root/setup.sh
