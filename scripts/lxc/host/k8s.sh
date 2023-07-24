@@ -41,15 +41,15 @@ fi
 pct start $LXC_VM_ID
 
 # カーネル参照先のディレクトリを作成
-#pct exec $LXC_VM_ID -- mkdir -p /usr/lib/modules
+pct exec $LXC_VM_ID -- mkdir -p /usr/lib/modules
 
 # マウントを追加
-#if ! grep -q "lxc.mount.entry" $CONFIG_FILE; then
-#  echo "lxc.mount.entry: /usr/lib/modules usr/lib/modules none bind 0 0" >> $CONFIG_FILE
-#fi
+if ! grep -q "lxc.mount.entry" $CONFIG_FILE; then
+  echo "lxc.mount.entry: /usr/lib/modules usr/lib/modules none bind 0 0" >> $CONFIG_FILE
+fi
 
 # コンテナを再起動
-#pct reboot $LXC_VM_ID
+pct reboot $LXC_VM_ID
 
 # セットアップスクリプトを送信
 pct push $LXC_VM_ID /root/scripts/container/$LXC_SCRIPT_NAME.sh /root/setup.sh
