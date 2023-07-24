@@ -3,7 +3,7 @@ resource "proxmox_lxc" "minecraft_1" {
   count = 1
 
   vmid         = 103
-  hostname     = "minecraft_1"
+  hostname     = "minecraft-1"
   target_node  = "raspi-8gb-1"
   ostemplate   = var.lxc_os_template_ubuntu
   arch         = "arm64"
@@ -38,7 +38,7 @@ resource "proxmox_lxc" "minecraft_2" {
   count = 0
 
   vmid         = 104
-  hostname     = "minecraft_2"
+  hostname     = "minecraft-2"
   target_node  = "raspi-8gb-1"
   ostemplate   = var.lxc_os_template_ubuntu
   arch         = "arm64"
