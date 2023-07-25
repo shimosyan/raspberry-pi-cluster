@@ -1,6 +1,6 @@
 resource "proxmox_lxc" "minecraft_1" {
   # Enable Switch, 1 = true, 0 = false
-  count = 1
+  count = 0
 
   vmid         = 103
   hostname     = "minecraft-1"
@@ -10,8 +10,8 @@ resource "proxmox_lxc" "minecraft_1" {
   ostype       = "ubuntu"
   unprivileged = false # NFS のマウントで必要
   onboot       = true
-  cores        = 2
-  memory       = 2048
+  cores        = 3
+  memory       = 6144
   swap         = 0
   password     = var.root_pw
   start        = false # Ansible 側で起動する
@@ -45,8 +45,8 @@ resource "proxmox_lxc" "minecraft_2" {
   ostype       = "ubuntu"
   unprivileged = false # NFS のマウントで必要
   onboot       = true
-  cores        = 2
-  memory       = 2048
+  cores        = 3
+  memory       = 6144
   swap         = 0
   password     = var.root_pw
   start        = false # Ansible 側で起動する
