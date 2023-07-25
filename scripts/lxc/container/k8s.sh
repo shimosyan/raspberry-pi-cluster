@@ -2,7 +2,7 @@
 
 cd `dirname $0`
 
-FILE="./.setup_done"
+FILE="/root/.setup_done"
 
 # このスクリプトが一度でも実行されたログがあるなら処理を継続しない
 if [ -e $FILE ]; then
