@@ -37,9 +37,6 @@ if ! grep -q "lxc.mount.auto" $CONFIG_FILE; then
   echo "lxc.mount.auto: proc:rw sys:rw" >> $CONFIG_FILE
 fi
 
-#コンテナを一旦起動
-pct start $LXC_VM_ID
-
 # カーネル参照先のディレクトリを作成
 pct exec $LXC_VM_ID -- mkdir -p /usr/lib/modules
 

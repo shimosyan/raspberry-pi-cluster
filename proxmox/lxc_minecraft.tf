@@ -14,7 +14,7 @@ resource "proxmox_lxc" "minecraft" {
   memory       = 6144
   swap         = 0
   password     = var.root_pw
-  start        = false # Ansible 側で起動する
+  start        = true # インスタンスをスタートしていないと削除できない Ref. https://github.com/Telmate/terraform-provider-proxmox/issues/801
 
   // rootfs を記述しないとクラッシュするので注意
   rootfs {

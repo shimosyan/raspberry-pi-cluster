@@ -32,9 +32,6 @@ if [ -e $HOST_SCRIPT_FILE ]; then
   exit 0;
 fi
 
-#コンテナを起動
-pct start $LXC_VM_ID
-
 # ~/scripts/container に該当するファイルが見つかれば、 LXC に転送して実行する。
 CONTAINER_SCRIPT_FILE="/root/scripts/container/$SCRIPT_NAME.sh"
 
