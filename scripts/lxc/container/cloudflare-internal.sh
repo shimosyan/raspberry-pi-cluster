@@ -81,7 +81,7 @@ http {
 EOF
 
 # nginx を起動
-docker run --name nginx -v /root/nginx.conf:/etc/nginx/nginx.conf -d --restart always -p 80:80 -p 81:81 nginx:latest
+docker run --name nginx -d -v /root/nginx.conf:/etc/nginx/nginx.conf --restart always -p 80:80 -p 81:81 nginx:latest
 
 # cloudflared を起動
 docker run --name cloudflare -d --restart always cloudflare/cloudflared:latest tunnel --no-autoupdate run --token $TOKEN
