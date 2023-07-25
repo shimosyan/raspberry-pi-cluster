@@ -56,17 +56,16 @@ http {
                 server_name _;
 
                 root /var/html;
-	              index  index.html index.htm index.php;
+                index index.php index.html index.htm;
 
                 location / {
-                        try_files $uri $uri/ /index.php$is_args$args;
+                        try_files \$uri \$uri/ /index.php\$is_args\$args;
                 }
 
                 location ~ \.php$ {
-                        root           /var/html;
-                        fastcgi_pass   php:9000;
+                        fastcgi_pass   php-fpm:9000;
                         fastcgi_index  index.php;
-                        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+                        fastcgi_param  SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
                         include        fastcgi_params;
                 }
         }
@@ -92,7 +91,9 @@ services:
 
   # PHP-FPM コンテナ
   php-fpm:
-    image: php:8.2-fpm
+    image: php:fpm
+    ports:
+      - 9000:9000
     volumes:
       - type: volume
         source: nfs-web
@@ -112,5 +113,6 @@ volumes:
 EOF
 
 docker compose up -d
+#docker compose exec nginx "chown -R www-data:www-data /var/html"
 
 echo "1" > $FILE

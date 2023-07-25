@@ -36,6 +36,7 @@ services:
     image: itzg/bungeecord
     ports:
       - 54621:25577/tcp
+      - 25577:25577/udp
     tty: true
     stdin_open: true
     restart: always
@@ -53,6 +54,7 @@ services:
     image: itzg/minecraft-server
     ports:
       - 22233:25565/tcp
+      - 25565:25565/udp
     environment:
       EULA: "TRUE"
       TYPE: "PAPER"
