@@ -10,9 +10,6 @@ LXC_SCRIPT_NAME=$2
 
 CONFIG_FILE="/etc/pve/lxc/$LXC_VM_ID.conf"
 
-#コンテナを起動
-pct start $LXC_VM_ID
-
 # ~/scripts/container に該当するファイルが見つかれば、 LXC に転送して実行する。
 CONTAINER_SCRIPT_FILE="/root/scripts/container/$SCRIPT_NAME.sh"
 
