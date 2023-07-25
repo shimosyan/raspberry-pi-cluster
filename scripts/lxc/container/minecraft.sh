@@ -14,7 +14,7 @@ apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 docker volume create --driver local --opt type=nfs --opt o=addr=192.168.6.21,rw,nfsvers=4 --opt device=:/volume1/proxmox-data/minecraft nfs-minecraft
 
 # Minecraft を実行する
-#docker run --rm --name mcserver -d --mount source=nfs-minecraft,target=/data -e MEMORYSIZE='4G' -e TZ='Asia/Tokyo' -e EULA=TRUE -p 25565:25565 -i marctv/minecraft-papermc-server:latest --restart always
+docker run --rm --name mcserver -d --mount source=nfs-minecraft,target=/data -e MEMORYSIZE='5G' -e TZ='Asia/Tokyo' -e EULA=TRUE -p 25565:25565 -i marctv/minecraft-papermc-server:latest --restart always
 
 # Login Console
 #docker exec -it mcserver /bin/bash
