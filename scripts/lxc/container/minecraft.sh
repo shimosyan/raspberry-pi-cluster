@@ -58,6 +58,9 @@ services:
     environment:
       EULA: "TRUE"
       TYPE: "PAPER"
+      ENABLE_QUERY: "true"
+      ENABLE_STATUS: "true"
+      OPS: shimosyan
       TZ: Asia/Tokyo
       MEMORY: 4G
       ONLINE_MODE: "false" # BungeeCordを使うのでfalseにしています

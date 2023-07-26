@@ -62,6 +62,14 @@ http {
                         try_files \$uri \$uri/ /index.php\$is_args\$args;
                 }
 
+                location /whitelist.json {
+                        alias /var/minecraft/whitelist.json;
+                }
+
+                location /map {
+                        alias /var/minecraft/plugins/dynmap/web;
+                }
+
                 location ~ \.php$ {
                         fastcgi_pass   php-fpm:9000;
                         fastcgi_index  index.php;
@@ -88,6 +96,9 @@ services:
       - type: volume
         source: nfs-web
         target: /var/html
+      - type: volume
+        source: nfs-minecraft
+        target: /var/minecraft
 
   # PHP-FPM コンテナ
   php-fpm:
