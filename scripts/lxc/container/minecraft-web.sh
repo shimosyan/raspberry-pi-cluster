@@ -59,7 +59,8 @@ http {
                 index index.php index.html index.htm;
 
                 location / {
-                        try_files \$uri \$uri/ /index.php\$is_args\$args;
+                        # VueJS はこの記述が必要
+                        try_files \$uri \$uri/ /index.html;
                 }
 
                 location /whitelist.json {
