@@ -100,6 +100,7 @@ services:
       - type: volume
         source: nfs-minecraft
         target: /var/minecraft
+    restart: always
 
   # PHP-FPM コンテナ
   php-fpm:
@@ -110,6 +111,7 @@ services:
       - type: volume
         source: nfs-web
         target: /var/html
+    restart: always
 
 
 # Compose の外ですでに作成済みの volume を指定する場合は ture を設定する。
@@ -124,7 +126,7 @@ volumes:
     external: true
 EOF
 
-docker compose up -d
+docker compose up
 #docker compose exec nginx "chown -R www-data:www-data /var/html"
 
 echo "1" > $FILE
