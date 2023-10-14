@@ -103,6 +103,8 @@ volumes:
     external: true
 EOF
 
+sleep 60
+
 docker compose up -d
 
 echo "1" > $FILE

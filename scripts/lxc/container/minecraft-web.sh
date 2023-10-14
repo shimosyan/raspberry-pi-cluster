@@ -126,6 +126,8 @@ volumes:
     external: true
 EOF
 
+sleep 60
+
 docker compose up
 #docker compose exec nginx "chown -R www-data:www-data /var/html"
 
