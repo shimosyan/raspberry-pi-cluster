@@ -2,7 +2,7 @@ resource "proxmox_lxc" "minecraft-web" {
   # Enable Switch, 1 = true, 0 = false
   count = 1
 
-  vmid         = 105
+  vmid         = 106
   hostname     = "minecraft-web"
   target_node  = "raspi-4gb-2"
   ostemplate   = var.lxc_os_template_ubuntu
