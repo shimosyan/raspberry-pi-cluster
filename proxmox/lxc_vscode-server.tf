@@ -10,8 +10,8 @@ resource "proxmox_lxc" "vscode-server" {
   ostype       = "ubuntu"
   unprivileged = false # NFS のマウントで必要
   onboot       = true
-  cores        = 2
-  memory       = 2048
+  cores        = 3
+  memory       = 6144
   swap         = 0
   password     = var.root_pw
   start        = true # インスタンスをスタートしていないと削除できない Ref. https://github.com/Telmate/terraform-provider-proxmox/issues/801
