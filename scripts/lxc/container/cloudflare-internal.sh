@@ -85,7 +85,7 @@ http {
                 server_name _;
                 location / {
                         proxy_set_header Host \$http_host;
-                        proxy_pass https://192.168.6.71:8000;
+                        proxy_pass http://192.168.6.71:8000;
 
                         proxy_http_version 1.1;
                         proxy_set_header Connection \$http_connection;

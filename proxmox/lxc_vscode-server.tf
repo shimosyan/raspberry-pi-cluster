@@ -19,7 +19,7 @@ resource "proxmox_lxc" "vscode-server" {
   // rootfs を記述しないとクラッシュするので注意
   rootfs {
     storage = "synology-nfs"
-    size    = "8G"
+    size    = "32G"
   }
 
   network {
