@@ -162,6 +162,7 @@ cat ~/.ssh/id_rsa.pub
 ```sh
 # !!!!Proxmox ホスト側のコンソールで実行!!!!
 echo "<key>" >> ~/.ssh/authorized_keys
+mkdir -p /root/scripts
 ```
 
 当環境のコンソールに戻って、以下のコマンドを実行して疎通確認をします。IP アドレスの箇所は適宜置き換えてください。
