@@ -78,13 +78,28 @@ http {
                         proxy_set_header Upgrade \$http_upgrade;
                 }
         }
+
+        # VScode 向けの設定
+        server {
+                listen 82;
+                server_name _;
+                location / {
+                        proxy_set_header Host \$http_host;
+                        proxy_pass https://192.168.6.71:8000;
+
+                        proxy_http_version 1.1;
+                        proxy_set_header Connection \$http_connection;
+                        proxy_set_header Origin http://\$host;
+                        proxy_set_header Upgrade \$http_upgrade;
+                }
+        }
 }
 EOF
 
 sleep 60
 
 # nginx を起動
-docker run --name nginx -d -v /root/nginx.conf:/etc/nginx/nginx.conf --restart always -p 80:80 -p 81:81 nginx:latest
+docker run --name nginx -d -v /root/nginx.conf:/etc/nginx/nginx.conf --restart always -p 80:80 -p 81:81 -p 82:82 nginx:latest
 
 # cloudflared を起動
 docker run --name cloudflare -d --restart always cloudflare/cloudflared:latest tunnel --no-autoupdate run --token $TOKEN

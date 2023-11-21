@@ -14,8 +14,9 @@ apt update
 
 # VScode のインストール
 apt install -y apt-transport-https curl
-curl -L https://go.microsoft.com/fwlink/?LinkID=760868 -o vscode.deb
-apt install ./vscode.deb
+curl -L "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-arm64" -o vscode.deb
+chown _apt ./vscode.deb
+apt install -y ./vscode.deb
 
 # VScode サーバーの起動
 cat <<EOF > /etc/systemd/system/vscode-server.service
@@ -23,9 +24,8 @@ cat <<EOF > /etc/systemd/system/vscode-server.service
 Description = VSCode Server Service
 
 [Service]
-ExecStart = /usr/bin/code serve-web --without-connection-token
+ExecStart = /usr/bin/code --no-sandbox --user-data-dir=/etc/vscode serve-web --without-connection-token
 Restart = always # 常に再起動
-User = kusuke # root以外で実行する場合ユーザ名をセット、rootの場合この行を消す
 
 [Install]
 WantedBy = multi-user.target
