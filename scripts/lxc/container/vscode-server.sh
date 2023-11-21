@@ -24,7 +24,7 @@ cat <<EOF > /etc/systemd/system/vscode-server.service
 Description = VSCode Server Service
 
 [Service]
-ExecStart = /usr/bin/code --no-sandbox --user-data-dir=/etc/vscode serve-web --without-connection-token
+ExecStart = /usr/bin/code --no-sandbox --user-data-dir=/etc/vscode serve-web --host 0.0.0.0 --port 8000 --without-connection-token --accept-server-license-terms
 Restart = always # 常に再起動
 
 [Install]
