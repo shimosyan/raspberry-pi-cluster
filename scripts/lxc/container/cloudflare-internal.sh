@@ -93,13 +93,28 @@ http {
                         proxy_set_header Upgrade \$http_upgrade;
                 }
         }
+
+        # Grafana 向けの設定
+        server {
+                listen 83;
+                server_name _;
+                location / {
+                        proxy_set_header Host \$http_host;
+                        proxy_pass http://192.168.6.72:3000;
+
+                        proxy_http_version 1.1;
+                        proxy_set_header Connection \$http_connection;
+                        proxy_set_header Origin http://\$host;
+                        proxy_set_header Upgrade \$http_upgrade;
+                }
+        }
 }
 EOF
 
 sleep 60
 
 # nginx を起動
-docker run --name nginx -d -v /root/nginx.conf:/etc/nginx/nginx.conf --restart always -p 80:80 -p 81:81 -p 82:82 nginx:latest
+docker run --name nginx -d -v /root/nginx.conf:/etc/nginx/nginx.conf --restart always -p 80:80 -p 81:81 -p 82:82 -p 83:83 nginx:latest
 
 # cloudflared を起動
 docker run --name cloudflare -d --restart always cloudflare/cloudflared:latest tunnel --no-autoupdate run --token $TOKEN

@@ -1,6 +1,6 @@
 resource "proxmox_lxc" "grafana" {
   # Enable Switch, 1 = true, 0 = false
-  count = 0
+  count = 1
 
   vmid         = 107
   hostname     = "grafana"
@@ -19,7 +19,7 @@ resource "proxmox_lxc" "grafana" {
   // rootfs を記述しないとクラッシュするので注意
   rootfs {
     storage = "synology-nfs"
-    size    = "64G"
+    size    = "32G"
   }
 
   network {
