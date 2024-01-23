@@ -22,15 +22,30 @@ apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 # NAS をマウントする
 # Ref. https://redj.hatenablog.com/entry/2019/04/11/011302
 docker volume create --driver local --opt type=nfs --opt o=addr=192.168.6.21,rw,nfsvers=4 --opt device=:/volume1/proxmox-data/grafana nfs-grafana
+docker volume create --driver local --opt type=nfs --opt o=addr=192.168.6.21,rw,nfsvers=4 --opt device=:/volume1/proxmox-data/grafana-influxdb nfs-influxdb
 
 cat <<EOF > /root/docker-compose.yml
 version: '3'
 
 services:
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    restart: always
+    volumes:
+      - type: volume
+        source: nfs-influxdb
+        target: /var/lib/influxdb2
+    ports:
+      - 8086:8086
+      - 8083:8083
+
   grafana:
     image: grafana/grafana-enterprise
     container_name: grafana
-    restart: unless-stopped
+    restart: always
+    depends_on:
+      - influxdb
     ports:
       - '3000:3000'
     volumes:
@@ -39,6 +54,8 @@ services:
         target: /var/lib/grafana
 volumes:
   nfs-grafana:
+    external: true
+  nfs-influxdb:
     external: true
 EOF
 
