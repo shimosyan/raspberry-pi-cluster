@@ -23,5 +23,5 @@ terraform {
 }
 
 provider "proxmox" {
-  pm_api_url = "https://proxmox.micmnis.net/api2/json"
+  pm_api_url = "https://proxmox.cube-unit.net/api2/json"
 }

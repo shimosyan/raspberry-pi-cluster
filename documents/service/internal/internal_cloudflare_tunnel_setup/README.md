@@ -17,10 +17,10 @@
 - 利用者は管理ユーザーとGithubActionを想定。
 - このサービスは外部に直接公開せず、Cloudflare のサーバーから Cloudflare Tunnel を経由して公開する。
   - 以下のドメインを公開する。
-    - Proxmox 用: `proxmox.micmnis.net`
-    - NAS 用: `nas.micmnis.net`
+    - Proxmox 用: `proxmox.cube-unit.net`
+    - NAS 用: `nas.cube-unit.net`
   - これらのドメインには Cloudflare によるアクセス制御を実装し、以下の認証要素を備える。
-    - micmnis.net の Google Workspace を Identity Provider とした SAML2.0 によるシングルサインオン認証。
+    - cube-unit.net の Google Workspace を Identity Provider とした SAML2.0 によるシングルサインオン認証。
     - Cloudflare Service Token を用いたトークン認証。
 - このインスタンスは HA 構成とし、稼働しているノードが停止しても他のノードにライブマイグレーションできるようにする。
   - そのために、ストレージは NAS に展開とする。
@@ -72,7 +72,7 @@ Cloudflare Zero Trust をセットアップします。
 
 セットアップが終わったら、[公式リファレンス](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/install-and-setup/tunnel-guide/remote/)を参考に手順を進めます。
 
-ダッシュボードの Access → Tunnels から新規作成し、名称を `micmnis.net Internal Service` にします。
+ダッシュボードの Access → Tunnels から新規作成し、名称を `cube-unit.net Internal Service` にします。
 
 それぞれの環境ごとのインストールコマンドに Token が表示されているので、それをコピーします。
 
@@ -95,7 +95,7 @@ chmod +x cloudflare-internal.sh
 
 - Public hostname
   - Subdomain: `proxmox` (無料プランではネストしたサブドメインは使用できません。)
-  - Domain: `micmnis.net`
+  - Domain: `cube-unit.net`
   - Path: 空白でOK
 - Service
   - Type: `HTTP`
@@ -111,7 +111,7 @@ Tunnel の設定を開くと、ホストの追加ができるため次のよう�
 
 - Public hostname
   - Subdomain: `nas` (無料プランではネストしたサブドメインは使用できません。)
-  - Domain: `micmnis.net`
+  - Domain: `cube-unit.net`
   - Path: 空白でOK
 - Service
   - Type: `HTTP`
@@ -125,7 +125,7 @@ Tunnel の設定を開くと、ホストの追加ができるため次のよう�
 
 Cloudflare Zero Trust のダッシュボードの Setting → Authentication から「SAML」新規作成します。
 
-名称は `Google Workspace (micmnis.net)` にします。
+名称は `Google Workspace (cube-unit.net)` にします。
 
 次に Google Workspace の管理画面を開き、セキュリティ → 認証 → 「SAML ID プロバイダ（IdP）として Google を使用したシングル サインオン（SSO）の設定」を開きます。
 
@@ -139,8 +139,8 @@ Google Workspace の管理画面から アプリ → ウェブアプリとモバ
 
 パラメーターは以下の通りに入力します。
 
-- ACS URL: `https://micmnis.cloudflareaccess.com/cdn-cgi/access/callback`
-- Entity ID: `https://micmnis.cloudflareaccess.com/cdn-cgi/access/callback`
+- ACS URL: `https://cube-unit.cloudflareaccess.com/cdn-cgi/access/callback`
+- Entity ID: `https://cube-unit.cloudflareaccess.com/cdn-cgi/access/callback`
 - Name ID Format: `email`
 
 これで SSO の設定は完了です。
@@ -161,7 +161,7 @@ Cloudflare Zero Trust のダッシュボードの Access → Application から�
 
 アプリケーションタイプを選択させられるので今回は「Self-hosted」を選択します。
 
-名称は `micmnis.net Internal Service` にし、セッション期間はお好みにします。
+名称は `cube-unit.net Internal Service` にし、セッション期間はお好みにします。
 
 `Application domain` には Cloudflare Tunnel で使用したすべてのドメインを指定します。
 
@@ -174,7 +174,7 @@ Cloudflare Zero Trust のダッシュボードの Access → Application から�
   - Configure rules
     - Include 1
       - Selector: `Login Method`
-      - Value: `SAML - Google Workspace (micmnis.net)`
+      - Value: `SAML - Google Workspace (cube-unit.net)`
   - それ以外: デフォルトのまま
 - Policies 2
   - Policy name: `Github Action`
