@@ -8,7 +8,7 @@ terraform {
     .tfstate は AWS S3 に保存すること
   */
   backend "s3" {
-    bucket  = "terraform.micmnis.net"
+    bucket  = "terraform.cube-unit.net"
     region  = "ap-northeast-1"
     key     = "raspi-cluster/proxmox/terraform.tfstate"
     encrypt = true
