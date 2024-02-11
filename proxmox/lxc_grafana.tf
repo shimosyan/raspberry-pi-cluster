@@ -11,7 +11,7 @@ resource "proxmox_lxc" "grafana" {
   unprivileged = false # NFS のマウントで必要
   onboot       = true
   cores        = 1
-  memory       = 512
+  memory       = 1024
   swap         = 0
   password     = var.root_pw
   start        = true # インスタンスをスタートしていないと削除できない Ref. https://github.com/Telmate/terraform-provider-proxmox/issues/801
