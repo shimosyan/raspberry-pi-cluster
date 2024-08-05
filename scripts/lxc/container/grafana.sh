@@ -24,6 +24,18 @@ apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 docker volume create --driver local --opt type=nfs --opt o=addr=192.168.6.21,rw,nfsvers=4 --opt device=:/volume1/proxmox-data/grafana nfs-grafana
 docker volume create --driver local --opt type=nfs --opt o=addr=192.168.6.21,rw,nfsvers=4 --opt device=:/volume1/proxmox-data/grafana-influxdb nfs-influxdb
 
+# aiseg2-influxdb のインストール
+git clone https://github.com/shimosyan/aiseg2-influxdb.git
+git clone https://github.com/nodenv/nodenv.git ~/.nodenv
+echo 'export PATH="$HOME/.nodenv/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(nodenv init -)"' >> ~/.bashrc
+source .bashrc
+git clone https://github.com/nodenv/node-build.git ~/.nodenv/plugins/node-build
+nodenv --version
+nodenv install 20.11.0
+nodenv global 20.11.0
+cd ~/aiseg2-influxdb && npm install
+
 cat <<EOF > /root/docker-compose.yml
 version: '3'
 
@@ -62,3 +74,7 @@ EOF
 docker compose up -d
 
 echo "1" > $FILE
+
+#
+# 初回インストール後は aiseg2-influxdb の設定・起動・動作確認を実施し、influxdb と grafana の設定を実施すること
+#
