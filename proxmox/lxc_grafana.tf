@@ -10,7 +10,7 @@ resource "proxmox_lxc" "grafana" {
   ostype       = "ubuntu"
   unprivileged = false # NFS のマウントで必要
   onboot       = true
-  cores        = 1
+  cores        = 2
   memory       = 2048
   swap         = 0
   password     = var.root_pw
