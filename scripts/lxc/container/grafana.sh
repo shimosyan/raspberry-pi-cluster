@@ -10,6 +10,12 @@ if [ -e $FILE ]; then
   exit 0;
 fi
 
+# Timezone の変更
+sudo timedatectl set-timezone Asia/Tokyo
+
+# Cron 再起動
+service cron restart
+
 apt update
 
 # Docker のインストール
