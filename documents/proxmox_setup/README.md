@@ -44,14 +44,3 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys KEY_ID
 
 リブートコマンドをたたくなり上部メニューの再起動ボタンを押して再起動します。
 
-## パッケージのインストール
-
-iSCSI 用のパッケージをインストールします。
-
-Proxmox のダッシュボード右上にある「シェル」を開き、以下のコマンドを実行します。
-
-```sh
-apt install open-iscsi
-```
-
-インストールが終わったら Proxmox のダッシュボード右上にある「再起動」ボタンを実行します。
