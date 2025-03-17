@@ -50,7 +50,7 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys KEY_ID
 
 当環境では Synology DS1621+ の NAS を使用します。
 
-### NAS の設定(1)
+### NAS の設定
 
 Proxmox の内部データ保存用に NFS で接続します。
 
@@ -62,23 +62,7 @@ Synology のコントロールパネルから「共有フォルダ」を開き�
 
 共有フォルダを作成したら、編集から NFS の設定を開き、`192.168.6.0/24` からの読み書きを許可します。
 
-### NAS の設定(2)
-
-iSCSI で接続します。
-
-Synology の NAS からパッケージマネージャー経由で、`SAN Manager` をインストールします。
-
-`SAN Manager` を開いて、新規 LUN を作成します。使用できる容量はここで指定できます。
-
-LUN はゲスト OS ごとに分けて作成することをおすすめします。
-
-作成した LUN に対して、iSCSI Target を割り当てます。
-
-iSCSI Target を作成したら、編集→詳細から「複数の iSCSI ターゲットで複数セッションを許可する」をONにします。
-
-これを設定しないと、複数のノードからアクセスできません。
-
-### Proxmox の設定(1)
+### Proxmox の設定
 
 Proxmox の内部データ保存用の NFS を設定します。
 
@@ -92,20 +76,6 @@ Proxmox の内部データ保存用の NFS を設定します。
 - サーバ: NAS の IP アドレス
 - Export: `/volume1/proxmox`
 - 内容: すべて選択
-
-ここまで入力して OK をクリックします。
-
-### Proxmox の設定(2)
-
-ダッシュボードから`ストレージ`を開きます。
-
-追加メニューから `iSCSI` を指定します。
-
-設定ダイアログが表示されるので以下の通りに入力します。
-
-- ID: `synology-iscsi`
-- Portal: NAS の IP アドレス
-- Target: NAS で設定した iSCSI Target の IQN
 
 ここまで入力して OK をクリックします。
 
