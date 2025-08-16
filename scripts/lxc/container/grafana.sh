@@ -79,6 +79,16 @@ EOF
 
 docker compose up -d
 
+## aiseg2-influxdb-forwarder
+
+git clone https://github.com/shimosyan/aiseg2-influxdb-forwarder.git
+cd aiseg2-influxdb-forwarder
+
+cp .env.example .env
+
+echo ".env を設定してください。設定が終わったら下記コマンドを実行してください。"
+echo "cd aiseg2-influxdb-forwarder && docker compose up -d"
+
 echo "1" > $FILE
 
 #
