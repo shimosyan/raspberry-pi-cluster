@@ -43,4 +43,3 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys KEY_ID
 カーネル更新がある場合は、再起動が必要です。
 
 リブートコマンドをたたくなり上部メニューの再起動ボタンを押して再起動します。
-
