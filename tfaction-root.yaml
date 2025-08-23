@@ -17,13 +17,13 @@ target_groups:
       aws_assume_role_arn: arn:aws:iam::158677943024:role/github_raspberry-pi-cluster_terraform_plan
       secrets:
         - env_name: PM_API_TOKEN_ID
-          secret_name: PM_READONLY_API_TOKEN_ID
+          secret_name: PM_API_TOKEN_ID
         - env_name: PM_API_TOKEN_SECRET
-          secret_name: PM_READONLY_API_TOKEN_SECRET
+          secret_name: PM_API_TOKEN_SECRET
     terraform_apply_config:
       aws_assume_role_arn: arn:aws:iam::158677943024:role/github_raspberry-pi-cluster_terraform_apply
       secrets:
         - env_name: PM_API_TOKEN_ID
-          secret_name: PM_WRITABLE_API_TOKEN_ID
+          secret_name: PM_API_TOKEN_ID
         - env_name: PM_API_TOKEN_SECRET
-          secret_name: PM_WRITABLE_API_TOKEN_SECRET
+          secret_name: PM_API_TOKEN_SECRET
