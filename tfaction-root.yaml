@@ -16,6 +16,7 @@ target_groups:
     terraform_plan_config:
       aws_assume_role_arn: arn:aws:iam::158677943024:role/github_raspberry-pi-cluster_terraform_plan
       secrets:
+        # terraform plan であっても Administrator 権限が必要
         - env_name: PM_API_TOKEN_ID
           secret_name: PM_API_TOKEN_ID
         - env_name: PM_API_TOKEN_SECRET
