@@ -1,6 +1,6 @@
 # raspberry-pi-cluster
 
-[![Proxmox Deploy](https://github.com/shimosyan/raspberry-pi-cluster/actions/workflows/deploy.yaml/badge.svg?branch=main)](https://github.com/shimosyan/raspberry-pi-cluster/actions/workflows/deploy.yaml)
+[![Proxmox Deploy](https://github.com/shimosyan/raspberry-pi-cluster/actions/workflows/terraform-deploy.yaml/badge.svg?branch=main)](https://github.com/shimosyan/raspberry-pi-cluster/actions/workflows/terraform-deploy.yaml)
 
 Raspberry PI Cluster による自宅サーバーの運用リポジトリです。
 
