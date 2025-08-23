@@ -1,0 +1,29 @@
+vars:
+  env: Staging
+  title: Example
+templates:
+  base: |
+    {{template "link" .}}
+
+    {{template "join_command" .}}
+
+    {{template "hidden_combined_output" .}}
+exec:
+  common-error:
+    - when: ExitCode != 0
+      template: |
+        ## {{template "status" .}} {{.Vars.title}} ({{.Vars.env}})
+
+        {{template "base" .}}
+
+  deploy-to-s3:
+    - when: ExitCode == 0
+      template: |
+        ## {{template "status" .}} Deploy Succeeded ({{.Vars.env}})
+
+        {{template "base" .}}
+    - when: ExitCode != 0
+      template: |
+        ## {{template "status" .}} Deploy Failed ({{.Vars.env}})
+
+        {{template "base" .}}
