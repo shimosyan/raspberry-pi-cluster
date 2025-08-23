@@ -1,0 +1,85 @@
+name: terraform-pull-request
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/terraform**
+      - proxmox/**
+
+concurrency:
+  group: ${{ github.workflow }}-terraform-${{ github.ref }}  # デプロイしないため PR レベルの排他制御
+  cancel-in-progress: true # PR の更新があった場合は前のジョブをキャンセルする
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  terraform-plan:
+    runs-on: ubuntu-latest
+
+    env:
+      PM_HTTP_HEADERS: CF-Access-Client-Id,${{ secrets.CF_ACCESS_CLIENT_ID }},CF-Access-Client-Secret,${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      TFACTION_TARGET: proxmox
+      TFACTION_WORKING_DIR: proxmox
+      TFACTION_JOB_TYPE: terraform
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - id: app-token
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - uses: aquaproj/aqua-installer@d1fe50798dbadd4eb5b98957290ca175f6b4870f # v4.0.2
+        with:
+          aqua_version: v2.53.9
+        env:
+          AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - run: github-comment exec -- github-comment hide
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      # GitHub Secrets を TFAction に渡す Action
+      - uses: suzuki-shunsuke/tfaction/js@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+        with:
+          action: export-secrets
+          secrets: ${{ toJSON(secrets) }}
+
+      # terraform init などの準備を行う Action
+      - uses: suzuki-shunsuke/tfaction/setup@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      # terraform fmt 等を実行する Action
+      - uses: suzuki-shunsuke/tfaction/test@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      # terraform plan を実行する Action
+      - uses: suzuki-shunsuke/tfaction/plan@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+
+  success:
+    needs: terraform-plan
+    if: ${{ !failure() }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: echo "Success!!"

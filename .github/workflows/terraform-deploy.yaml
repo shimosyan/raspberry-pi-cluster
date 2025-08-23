@@ -3,31 +3,57 @@ on:
   push:
     branches:
       - main
+    paths:
+      - .github/workflows/terraform**
+      - proxmox/**
+
+concurrency:
+  group: terraform-deploy # デプロイ先が1つしかないため repo 内で排他制御
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+  actions: read # artifact を取得するために必要
 
 jobs:
-  terraform:
+  terraform-apply:
+    environment: main
     runs-on: ubuntu-latest
 
     env:
-      PM_API_TOKEN_ID: ${{ secrets.PM_API_TOKEN_ID }}
-      PM_API_TOKEN_SECRET: ${{ secrets.PM_API_TOKEN_SECRET }}
       PM_HTTP_HEADERS: CF-Access-Client-Id,${{ secrets.CF_ACCESS_CLIENT_ID }},CF-Access-Client-Secret,${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      TFACTION_TARGET: proxmox
+      TFACTION_WORKING_DIR: proxmox
+      TFACTION_JOB_TYPE: terraform
+      TFACTION_IS_APPLY: "true"
 
     outputs:
       lxc_vm_list: ${{ steps.extract.outputs.lxc_vm_list }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          fetch-depth: 0
+          persist-credentials: false
 
-      - name: configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - id: app-token
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-1
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - uses: aquaproj/aqua-installer@d1fe50798dbadd4eb5b98957290ca175f6b4870f # v4.0.2
+        with:
+          aqua_version: v2.53.9
+        env:
+          AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      # GitHub Secrets を TFAction に渡す Action
+      - uses: suzuki-shunsuke/tfaction/js@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+        with:
+          action: export-secrets
+          secrets: ${{ toJSON(secrets) }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -41,15 +67,26 @@ jobs:
         run: terraform fmt -recursive -check
         working-directory: proxmox
 
-      - name: Proxmox Terraform Plan
-        id: plan
-        run: terraform plan -parallelism=1 -no-color -input=false -var="root_pw=${{ secrets.DEFAULT_ROOT_PW }}"
-        working-directory: proxmox
+      - run: tfaction get-or-create-drift-issue
+        # CHECK: You can remove this step if you don't use drift detection
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - name: Proxmox Terraform Deploy
+      # terraform init などの準備を行う Action
+      - uses: suzuki-shunsuke/tfaction/setup@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      # terraform apply を実行する Action
+      - uses: suzuki-shunsuke/tfaction/apply@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
         id: deploy
-        run: terraform apply -auto-approve -parallelism=1 -no-color -input=false -var="root_pw=${{ secrets.DEFAULT_ROOT_PW }}"
-        working-directory: proxmox
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから LXC の VM ID と terraform の Resource ID を抽出し複数の場合はカンマ区切りに整形する
       - name: Extract Created LXC VM ID
@@ -75,17 +112,28 @@ jobs:
 
           echo "No new lxc."
 
+      - uses: suzuki-shunsuke/tfaction/create-follow-up-pr@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+        if: failure()
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+
+      - uses: suzuki-shunsuke/tfaction/update-drift-issue@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+        # CHECK: You can remove this step if you don't use drift detection
+        if: always()
+        with:
+          status: ${{job.status}}
+          github_token: ${{ steps.app-token.outputs.token }}
+
   # Extract Create LXC で出力した lxc_vm_list に登録されているときだけ実行する
   ansible-for-proxmox-lxc:
-    needs: terraform # job.terraform に依存するようにする
-    if: needs.terraform.outputs.lxc_vm_list != ''
+    needs: terraform-apply # job.terraform-apply に依存するようにする
+    if: needs.terraform-apply.outputs.lxc_vm_list != ''
     runs-on: [self-hosted, proxmox-ansible]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          fetch-depth: 0
+          persist-credentials: false
 
       - name: Get Script List
         run: |
@@ -102,9 +150,10 @@ jobs:
           echo "CONTAINER_FILE_LIST=$CONTAINER_FILE_LIST" >> $GITHUB_ENV
 
         working-directory: scripts/lxc
+
       - name: Run Playbook
         run: |
           ansible-playbook playbook-proxmox-lxc.yaml --extra-vars 'lxc_vm_id="${{ env.LXC_VM_LIST }}" host_script_file="${{ env.HOST_FILE_LIST }}" container_script_file="${{ env.CONTAINER_FILE_LIST }}"'
         working-directory: ansible
         env:
-          LXC_VM_LIST: ${{needs.terraform.outputs.lxc_vm_list}}
+          LXC_VM_LIST: ${{needs.terraform-apply.outputs.lxc_vm_list}}

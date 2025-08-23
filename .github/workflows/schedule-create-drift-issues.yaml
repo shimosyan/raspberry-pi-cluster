@@ -1,0 +1,40 @@
+name: Create drift issues
+
+on:
+  workflow_dispatch:
+    inputs: {}
+  schedule:
+    # daily
+    - cron: "0 0 * * *"
+
+concurrency:
+  group: schedule-create-drift-issues
+  cancel-in-progress: false
+
+jobs:
+  create-drift-issues:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - id: app-token
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - uses: aquaproj/aqua-installer@d1fe50798dbadd4eb5b98957290ca175f6b4870f # v4.0.2
+        with:
+          aqua_version: v2.53.9
+        env:
+          AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - run: tfaction create-drift-issues
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
