@@ -79,8 +79,17 @@ jobs:
 
   success:
     needs: terraform-plan
-    if: ${{ !failure() }}
+    if: ${{ always() }}
     runs-on: ubuntu-latest
 
     steps:
-      - run: echo "Success!!"
+      - name: Check job result
+        run: |
+          RESULT="${{ needs.terraform-plan.result }}"
+          if [[ $RESULT == "success" || $RESULT == "skipped" ]]; then
+            echo "Terraform plan succeeded!"
+            exit 0
+          else
+            echo "Terraform plan failed or was cancelled!"
+            exit 1
+          fi
