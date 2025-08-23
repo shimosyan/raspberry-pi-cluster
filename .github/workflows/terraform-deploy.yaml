@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - .github/workflows/terraform**
+      - tfaction-root.yaml
       - proxmox/**
 
 concurrency:
