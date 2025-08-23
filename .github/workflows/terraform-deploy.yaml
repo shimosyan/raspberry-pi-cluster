@@ -55,18 +55,6 @@ jobs:
           action: export-secrets
           secrets: ${{ toJSON(secrets) }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Proxmox Terraform Init
-        run: terraform init
-        working-directory: proxmox
-
-      - name: Proxmox Terraform Format
-        id: fmt
-        run: terraform fmt -recursive -check
-        working-directory: proxmox
-
       - run: tfaction get-or-create-drift-issue
         # CHECK: You can remove this step if you don't use drift detection
         shell: bash
