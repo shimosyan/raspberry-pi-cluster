@@ -6,6 +6,9 @@ tflint:
 trivy:
   enabled: true
 
+drift_detection:
+  enabled: true
+
 target_groups:
   - working_directory: proxmox
     target: proxmox
