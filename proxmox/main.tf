@@ -17,11 +17,12 @@ terraform {
   required_providers {
     proxmox = {
       source  = "telmate/proxmox"
-      version = ">=2.9.14"
+      version = "3.0.2-rc04"
     }
   }
 }
 
 provider "proxmox" {
-  pm_api_url = "https://proxmox.cube-unit.net/api2/json"
+  pm_api_url                  = "https://proxmox.cube-unit.net/api2/json"
+  pm_minimum_permission_check = var.pm_minimum_permission_check
 }
