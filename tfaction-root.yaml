@@ -18,16 +18,19 @@ target_groups:
         secret_name: DEFAULT_ROOT_PW
     terraform_plan_config:
       aws_assume_role_arn: arn:aws:iam::158677943024:role/github_raspberry-pi-cluster_terraform_plan
+      env:
+        TF_VAR_pm_minimum_permission_check: false # Terraform Provider の telmate/proxmox が実施している最低限の権限チェックを無効化する
       secrets:
-        # terraform plan であっても Administrator 権限が必要
         - env_name: PM_API_TOKEN_ID
-          secret_name: PM_API_TOKEN_ID
+          secret_name: PM_READONLY_API_TOKEN_ID
         - env_name: PM_API_TOKEN_SECRET
-          secret_name: PM_API_TOKEN_SECRET
+          secret_name: PM_READONLY_API_TOKEN_SECRET
     terraform_apply_config:
       aws_assume_role_arn: arn:aws:iam::158677943024:role/github_raspberry-pi-cluster_terraform_apply
+      env:
+        TF_VAR_pm_minimum_permission_check: true
       secrets:
         - env_name: PM_API_TOKEN_ID
-          secret_name: PM_API_TOKEN_ID
+          secret_name: PM_WRITABLE_API_TOKEN_ID
         - env_name: PM_API_TOKEN_SECRET
-          secret_name: PM_API_TOKEN_SECRET
+          secret_name: PM_WRITABLE_API_TOKEN_SECRET
