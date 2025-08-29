@@ -85,6 +85,7 @@ jobs:
     steps:
       - name: Check job result
         run: |
+          exit 1
           RESULT="${{ needs.terraform-plan.result }}"
           if [[ $RESULT != "success" && $RESULT != "skipped" ]]; then
             echo "This workflow failed or was cancelled!"
