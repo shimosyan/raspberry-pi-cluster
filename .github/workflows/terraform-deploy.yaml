@@ -51,7 +51,7 @@ jobs:
           AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # GitHub Secrets を TFAction に渡す Action
-      - uses: suzuki-shunsuke/tfaction/js@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+      - uses: suzuki-shunsuke/tfaction/js@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
         with:
           action: export-secrets
           secrets: ${{ toJSON(secrets) }}
@@ -63,14 +63,14 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # terraform init などの準備を行う Action
-      - uses: suzuki-shunsuke/tfaction/setup@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+      - uses: suzuki-shunsuke/tfaction/setup@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # terraform apply を実行する Action
-      - uses: suzuki-shunsuke/tfaction/apply@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+      - uses: suzuki-shunsuke/tfaction/apply@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
         id: deploy
         with:
           github_token: ${{ steps.app-token.outputs.token }}
@@ -101,12 +101,12 @@ jobs:
 
           echo "No new lxc."
 
-      - uses: suzuki-shunsuke/tfaction/create-follow-up-pr@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+      - uses: suzuki-shunsuke/tfaction/create-follow-up-pr@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
         if: failure()
         with:
           github_token: ${{ steps.app-token.outputs.token }}
 
-      - uses: suzuki-shunsuke/tfaction/update-drift-issue@80af9c060a3870868c12c31a674e9d8b26278118 # v1.19.1
+      - uses: suzuki-shunsuke/tfaction/update-drift-issue@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
         # CHECK: You can remove this step if you don't use drift detection
         if: always()
         with:
