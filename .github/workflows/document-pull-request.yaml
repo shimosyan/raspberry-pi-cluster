@@ -1,16 +1,12 @@
-name: pull-request-other
+name: document-pull-request
 
 on:
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - .github/workflows/terraform**
-      - tfaction-root.yaml
-      - proxmox/**
 
 concurrency:
-  group: ${{ github.workflow }}-other-${{ github.ref }}  # デプロイしないため PR レベルの排他制御
+  group: ${{ github.workflow }}-document-${{ github.ref }}  # デプロイしないため PR レベルの排他制御
   cancel-in-progress: true # PR の更新があった場合は前のジョブをキャンセルする
 
 jobs:
