@@ -7,6 +7,7 @@ on:
       - .github/workflows/terraform**
       - tfaction-root.yaml
       - proxmox/**
+      - aqua.yaml
 
 concurrency:
   group: terraform-deploy # デプロイ先が1つしかないため repo 内で排他制御
@@ -20,7 +21,7 @@ permissions:
 
 jobs:
   terraform-apply:
-    environment: main
+    environment: production
     runs-on: ubuntu-latest
 
     env:
