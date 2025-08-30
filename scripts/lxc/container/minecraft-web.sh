@@ -83,8 +83,6 @@ EOF
 
 # Nginx + PHP を実行する
 cat <<EOF > /root/docker-compose.yml
-version: '3'
-
 services:
   nginx:
     image: nginx:latest

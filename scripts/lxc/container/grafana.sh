@@ -31,8 +31,6 @@ docker volume create --driver local --opt type=nfs --opt o=addr=192.168.6.21,rw,
 docker volume create --driver local --opt type=nfs --opt o=addr=192.168.6.21,rw,nfsvers=4 --opt device=:/volume1/proxmox-data/grafana-influxdb nfs-influxdb
 
 cat <<EOF > /root/docker-compose.yml
-version: '3'
-
 services:
   influxdb:
     image: influxdb

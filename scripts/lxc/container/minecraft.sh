@@ -28,8 +28,6 @@ docker volume create --driver local --opt type=nfs --opt o=addr=192.168.6.21,rw,
 # Minecraft を実行する
 # Ref. https://qiita.com/rokuosan/items/4ebeda13d19091b8d29d
 cat <<EOF > /root/docker-compose.yml
-version: '3'
-
 services:
   # BungeeCord
   proxy:
@@ -55,6 +53,9 @@ services:
     ports:
       - 22233:25565/tcp
       - 25565:25565/udp
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     environment:
       EULA: "TRUE"
       TYPE: "PAPER"
