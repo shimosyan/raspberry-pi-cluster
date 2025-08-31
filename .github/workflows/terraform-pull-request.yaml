@@ -65,6 +65,7 @@ jobs:
 
       # terraform fmt 等を実行する Action
       - uses: suzuki-shunsuke/tfaction/test@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+        id: plan
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
@@ -76,6 +77,12 @@ jobs:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Test tfaction plan output
+        env:
+          RESULT: "${{ steps.plan.outputs.stdout }}" # terraform deploy の出力を変数に入れる
+        run: |
+          echo "$RESULT"
 
 
   success:
