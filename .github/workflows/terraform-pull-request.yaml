@@ -79,10 +79,11 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Test tfaction plan output
-        env:
-          stdout: ${{ steps.plan.outputs.stdout }}
         run: |
-          echo "stdout = $stdout"
+          echo "Step context:"
+          echo '${{ toJSON(steps.plan) }}'
+          echo "Outputs:"
+          echo '${{ toJSON(steps.plan.outputs) }}'
 
 
   success:
