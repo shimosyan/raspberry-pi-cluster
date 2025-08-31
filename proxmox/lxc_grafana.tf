@@ -1,7 +1,6 @@
 resource "proxmox_lxc" "grafana" {
   # Enable Switch, 1 = true, 0 = false
   count = 1
-  force = false
 
   vmid         = 107
   hostname     = "grafana"
@@ -15,7 +14,8 @@ resource "proxmox_lxc" "grafana" {
   memory       = 3072 # 試験的にRAMを3GBに設定
   swap         = 0
   password     = var.root_pw
-  start        = true # インスタンスをスタートしていないと削除できない Ref. https://github.com/Telmate/terraform-provider-proxmox/issues/801
+  start        = true # Ansible でスクリプトを実行するために起動が必要
+  force        = false
 
   // rootfs を記述しないとクラッシュするので注意
   rootfs {
