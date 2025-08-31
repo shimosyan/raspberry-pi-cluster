@@ -80,9 +80,11 @@ jobs:
 
       - name: Test tfaction plan output
         env:
-          RESULT: "${{ steps.plan.outputs.stdout }}" # terraform deploy の出力を変数に入れる
+          stdout: ${{ steps.plan.outputs.stdout }}
+          outputs: ${{ steps.plan.outputs }}
         run: |
-          echo "$RESULT"
+          echo "stdout = $stdout"
+          echo "outputs = $outputs"
 
 
   success:
