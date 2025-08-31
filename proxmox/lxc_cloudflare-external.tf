@@ -1,6 +1,7 @@
 resource "proxmox_lxc" "cloudflare-external_1" {
   # Enable Switch, 1 = true, 0 = false
   count = 1
+  force = true
 
   vmid         = 103
   hostname     = "cloudflare-external-1"

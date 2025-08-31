@@ -1,6 +1,7 @@
 resource "proxmox_lxc" "vscode-server" {
   # Enable Switch, 1 = true, 0 = false
   count = 1
+  force = true
 
   vmid         = 106
   hostname     = "vscode-server"

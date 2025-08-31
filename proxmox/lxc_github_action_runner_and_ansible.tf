@@ -1,6 +1,7 @@
 resource "proxmox_lxc" "github_action_runner_and_ansible" {
   # Enable Switch, 1 = true, 0 = false
   count = 1
+  force = true
 
   vmid         = 102
   hostname     = "github-action-runner-and-ansible"
