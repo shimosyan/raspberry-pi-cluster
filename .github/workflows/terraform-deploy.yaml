@@ -90,14 +90,110 @@ jobs:
           status: ${{job.status}}
           github_token: ${{ steps.app-token.outputs.token }}
 
-      # Apply後にPRのplan artifactを取得
+      # Apply後にPRのplan artifactを取得（tfaction方式）
       - name: Download Plan Artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          name: terraform_plan_json_proxmox
-          path: ./plan-artifacts
-          github-token: ${{ steps.app-token.outputs.token }}
+        run: |
+          echo "=== Downloading plan artifact using tfaction approach ==="
+
+          # tfactionと同様の方法でPRのartifactを検索・ダウンロード
+
+          # 1. 現在のコミットに関連するPRを取得
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "Searching for PR that introduced commit ${{ github.sha }}"
+
+            # 最近マージされたPRの中から該当するものを検索
+            PR_DATA=$(gh api repos/${{ github.repository }}/pulls \
+              --method GET \
+              --field state=closed \
+              --field sort=updated \
+              --field direction=desc \
+              --field per_page=20 \
+              --jq ".[] | select(.merge_commit_sha == \"${{ github.sha }}\" or .head.sha == \"${{ github.sha }}\")")
+
+            if [ ! -z "$PR_DATA" ]; then
+              PR_NUMBER=$(echo "$PR_DATA" | jq -r '.number')
+              echo "Found PR #$PR_NUMBER for this commit"
+
+              # そのPRのワークフロー実行を検索
+              WORKFLOW_RUNS=$(gh api repos/${{ github.repository }}/actions/runs \
+                --method GET \
+                --field event=pull_request \
+                --field status=completed \
+                --field per_page=50 \
+                --jq ".workflow_runs[] | select(.pull_requests[]?.number == $PR_NUMBER and .name == \"terraform-pull-request\")")
+
+              if [ ! -z "$WORKFLOW_RUNS" ]; then
+                # 最新の成功したワークフロー実行を取得
+                RUN_ID=$(echo "$WORKFLOW_RUNS" | jq -r 'select(.conclusion == "success") | .id' | head -1)
+
+                if [ ! -z "$RUN_ID" ]; then
+                  echo "Found successful PR workflow run: $RUN_ID"
+
+                  # artifactの存在確認
+                  ARTIFACT_EXISTS=$(gh api repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts \
+                    --jq ".artifacts[] | select(.name == \"terraform_plan_json_proxmox\" and .expired == false)")
+
+                  if [ ! -z "$ARTIFACT_EXISTS" ]; then
+                    echo "✅ Found terraform plan artifact in run $RUN_ID"
+
+                    mkdir -p ./plan-artifacts
+
+                    # artifactをダウンロード
+                    gh run download $RUN_ID \
+                      --name terraform_plan_json_proxmox \
+                      --dir ./plan-artifacts
+
+                    echo "✅ Successfully downloaded plan artifact"
+                  else
+                    echo "❌ No terraform plan artifact found in run $RUN_ID"
+                  fi
+                else
+                  echo "❌ No successful workflow run found for PR #$PR_NUMBER"
+                fi
+              else
+                echo "❌ No terraform-pull-request workflow runs found for PR #$PR_NUMBER"
+              fi
+            else
+              echo "❌ No PR found for commit ${{ github.sha }}"
+            fi
+          else
+            echo "❌ Not a main branch push event"
+          fi
+
+          # ダウンロード結果の確認
+          if [ -d "./plan-artifacts" ] && [ -f "./plan-artifacts/tfplan.json" ]; then
+            echo "✅ Plan JSON file successfully downloaded"
+            ls -la ./plan-artifacts/
+          else
+            echo "⚠️ Plan artifact download failed or incomplete"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         continue-on-error: true
+
+      # ダウンロード結果の詳細確認
+      - name: Verify Plan Artifact
+        run: |
+          echo "=== Verifying downloaded plan artifact ==="
+
+          if [ -f "./plan-artifacts/tfplan.json" ]; then
+            echo "✅ Plan JSON file found"
+            echo "File size: $(wc -c < ./plan-artifacts/tfplan.json) bytes"
+            echo "File content preview:"
+            head -20 ./plan-artifacts/tfplan.json
+          else
+            echo "❌ Plan JSON file not found"
+            echo "Available files in plan-artifacts:"
+            ls -la ./plan-artifacts/ 2>/dev/null || echo "Directory does not exist"
+
+            # フォールバック: 最新のartifactを検索
+            echo "=== Fallback: Searching for any recent terraform plan artifact ==="
+            gh api repos/${{ github.repository }}/actions/artifacts \
+              --jq '.artifacts[] | select(.name == "terraform_plan_json_proxmox" and .expired == false) | {id: .id, workflow_run_id: .workflow_run.id, created_at: .created_at}' \
+              | head -5
+          fi
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # Plan JSONからLXC VM IDを抽出（従来の方法の代替）
       - name: Extract Created LXC VM ID
