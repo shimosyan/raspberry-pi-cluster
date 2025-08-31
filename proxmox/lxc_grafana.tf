@@ -1,7 +1,7 @@
 resource "proxmox_lxc" "grafana" {
   # Enable Switch, 1 = true, 0 = false
   count = 1
-  force = true
+  force = false
 
   vmid         = 107
   hostname     = "grafana"
