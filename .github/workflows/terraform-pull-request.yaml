@@ -71,7 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # terraform plan を実行する Action
-      - uses: suzuki-shunsuke/tfaction/plan@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+      - uses: suzuki-shunsuke/tfaction/apply@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
         id: plan
         with:
           github_token: ${{ steps.app-token.outputs.token }}
