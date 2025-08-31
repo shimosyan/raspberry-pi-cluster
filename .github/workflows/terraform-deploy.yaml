@@ -261,6 +261,7 @@ jobs:
           persist-credentials: false
 
       - name: Get Script List
+        id: get-script-list
         run: |
           HOST_FILE=$(ls -F ./host  | grep -v / | sed "s/*//g")
           CONTAINER_FILE=$(ls -F ./container  | grep -v / | sed "s/*//g")
@@ -271,8 +272,8 @@ jobs:
           echo -n "HOST_FILE_LIST = $HOST_FILE_LIST"
           echo -n "CONTAINER_FILE_LIST = $CONTAINER_FILE_LIST"
 
-          echo "HOST_FILE_LIST=$HOST_FILE_LIST" >> $GITHUB_ENV
-          echo "CONTAINER_FILE_LIST=$CONTAINER_FILE_LIST" >> $GITHUB_ENV
+          echo "HOST_FILE_LIST=$HOST_FILE_LIST" >> $GITHUB_OUTPUT
+          echo "CONTAINER_FILE_LIST=$CONTAINER_FILE_LIST" >> $GITHUB_OUTPUT
 
         working-directory: scripts/lxc
 
@@ -282,3 +283,5 @@ jobs:
         working-directory: ansible
         env:
           LXC_VM_LIST: ${{needs.extract-created-lxc.outputs.lxc_vm_list}}
+          HOST_FILE_LIST: ${{steps.get-script-list.outputs.HOST_FILE_LIST}}
+          CONTAINER_FILE_LIST: ${{steps.get-script-list.outputs.CONTAINER_FILE_LIST}}
