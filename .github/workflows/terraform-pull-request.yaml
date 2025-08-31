@@ -71,8 +71,16 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # terraform plan を実行する Action
-      - uses: suzuki-shunsuke/tfaction/apply@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+      - uses: suzuki-shunsuke/tfaction/plan@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
         id: plan
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      # terraform apply を実行する Action
+      - uses: suzuki-shunsuke/tfaction/apply@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+        id: apply
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
@@ -81,9 +89,9 @@ jobs:
       - name: Test tfaction plan output
         run: |
           echo "Step context:"
-          echo '${{ toJSON(steps.plan) }}'
+          echo '${{ toJSON(steps.apply) }}'
           echo "Outputs:"
-          echo '${{ toJSON(steps.plan.outputs) }}'
+          echo '${{ toJSON(steps.apply.outputs) }}'
 
 
   success:
