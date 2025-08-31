@@ -1,7 +1,7 @@
 resource "proxmox_lxc" "test" {
   # Enable Switch, 1 = true, 0 = false
-  count = 1
-  force = true
+  count = 0
+  force = false
 
   vmid         = 199
   hostname     = "test"
