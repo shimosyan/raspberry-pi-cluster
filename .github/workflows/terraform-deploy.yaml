@@ -95,13 +95,10 @@ jobs:
         run: |
           echo "=== Downloading plan artifact using tfaction approach ==="
 
-          # tfactionと同様の方法でPRのartifactを検索・ダウンロード
-
           # 1. 現在のコミットに関連するPRを取得
           if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "Searching for PR that introduced commit ${{ github.sha }}"
 
-            # 最近マージされたPRの中から該当するものを検索
             PR_DATA=$(gh api repos/${{ github.repository }}/pulls \
               --method GET \
               --field state=closed \
@@ -114,58 +111,75 @@ jobs:
               PR_NUMBER=$(echo "$PR_DATA" | jq -r '.number')
               echo "Found PR #$PR_NUMBER for this commit"
 
-              # そのPRのワークフロー実行を検索
-              WORKFLOW_RUNS=$(gh api repos/${{ github.repository }}/actions/runs \
+              # デバッグ: そのPRのすべてのワークフロー実行を確認
+              echo "=== Debugging: All workflow runs for PR #$PR_NUMBER ==="
+              ALL_RUNS=$(gh api repos/${{ github.repository }}/actions/runs \
                 --method GET \
                 --field event=pull_request \
-                --field status=completed \
-                --field per_page=50 \
-                --jq ".workflow_runs[] | select(.pull_requests[]?.number == $PR_NUMBER and .name == \"terraform-pull-request\")")
+                --field per_page=100 \
+                --jq ".workflow_runs[] | select(.pull_requests[]?.number == $PR_NUMBER)")
 
-              if [ ! -z "$WORKFLOW_RUNS" ]; then
-                # 最新の成功したワークフロー実行を取得
-                RUN_ID=$(echo "$WORKFLOW_RUNS" | jq -r 'select(.conclusion == "success") | .id' | head -1)
+              if [ ! -z "$ALL_RUNS" ]; then
+                echo "All workflow runs for PR #$PR_NUMBER:"
+                echo "$ALL_RUNS" | jq -r '"Run ID: \(.id), Name: \(.name), Status: \(.status), Conclusion: \(.conclusion), Event: \(.event)"'
+              else
+                echo "No workflow runs found for PR #$PR_NUMBER"
+              fi
+
+              # より柔軟な検索（名前の完全一致ではなく部分一致）
+              echo "=== Searching with partial name matching ==="
+              TERRAFORM_RUNS=$(echo "$ALL_RUNS" | jq -r 'select(.name | contains("terraform"))')
+
+              if [ ! -z "$TERRAFORM_RUNS" ]; then
+                echo "Found terraform-related workflow runs:"
+                echo "$TERRAFORM_RUNS" | jq -r '"Run ID: \(.id), Name: \(.name), Status: \(.status), Conclusion: \(.conclusion)"'
+
+                # 最新の成功したterraform関連の実行を取得
+                RUN_ID=$(echo "$TERRAFORM_RUNS" | jq -r 'select(.conclusion == "success") | .id' | head -1)
 
                 if [ ! -z "$RUN_ID" ]; then
-                  echo "Found successful PR workflow run: $RUN_ID"
+                  echo "Found successful terraform workflow run: $RUN_ID"
 
-                  # artifactの存在確認
-                  ARTIFACT_EXISTS=$(gh api repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts \
-                    --jq ".artifacts[] | select(.name == \"terraform_plan_json_proxmox\" and .expired == false)")
+                  # そのrunのartifactを確認
+                  echo "=== Checking artifacts in run $RUN_ID ==="
+                  ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts \
+                    --jq ".artifacts[]")
 
-                  if [ ! -z "$ARTIFACT_EXISTS" ]; then
-                    echo "✅ Found terraform plan artifact in run $RUN_ID"
+                  if [ ! -z "$ARTIFACTS" ]; then
+                    echo "Available artifacts in run $RUN_ID:"
+                    echo "$ARTIFACTS" | jq -r '"Name: \(.name), Size: \(.size_in_bytes), Expired: \(.expired)"'
 
-                    mkdir -p ./plan-artifacts
+                    # terraform plan関連のartifactを検索
+                    PLAN_ARTIFACT=$(echo "$ARTIFACTS" | jq -r 'select(.name | contains("terraform") or contains("plan")) | .name' | head -1)
 
-                    # artifactをダウンロード
-                    gh run download $RUN_ID \
-                      --name terraform_plan_json_proxmox \
-                      --dir ./plan-artifacts
+                    if [ ! -z "$PLAN_ARTIFACT" ]; then
+                      echo "Found plan artifact: $PLAN_ARTIFACT"
 
-                    echo "✅ Successfully downloaded plan artifact"
+                      mkdir -p ./plan-artifacts
+
+                      # artifactをダウンロード
+                      gh run download $RUN_ID \
+                        --name "$PLAN_ARTIFACT" \
+                        --dir ./plan-artifacts
+
+                      echo "✅ Successfully downloaded plan artifact: $PLAN_ARTIFACT"
+                    else
+                      echo "❌ No terraform plan artifact found"
+                    fi
                   else
-                    echo "❌ No terraform plan artifact found in run $RUN_ID"
+                    echo "❌ No artifacts found in run $RUN_ID"
                   fi
                 else
-                  echo "❌ No successful workflow run found for PR #$PR_NUMBER"
+                  echo "❌ No successful terraform workflow run found"
                 fi
               else
-                echo "❌ No terraform-pull-request workflow runs found for PR #$PR_NUMBER"
+                echo "❌ No terraform-related workflow runs found for PR #$PR_NUMBER"
               fi
             else
               echo "❌ No PR found for commit ${{ github.sha }}"
             fi
           else
             echo "❌ Not a main branch push event"
-          fi
-
-          # ダウンロード結果の確認
-          if [ -d "./plan-artifacts" ] && [ -f "./plan-artifacts/tfplan.json" ]; then
-            echo "✅ Plan JSON file successfully downloaded"
-            ls -la ./plan-artifacts/
-          else
-            echo "⚠️ Plan artifact download failed or incomplete"
           fi
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
