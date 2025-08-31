@@ -77,7 +77,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-
   success:
     needs: terraform-plan
     if: ${{ always() }}
