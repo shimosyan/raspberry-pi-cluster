@@ -254,7 +254,7 @@ jobs:
     needs:
       - terraform-apply
       - extract-created-lxc
-    if: needs.extract-created-lxc.outputs.lxc_vm_list != ''
+    if: needs.extract-created-lxc.outputs.lxc_vm_list != '[]' && needs.extract-created-lxc.outputs.lxc_vm_list != ''
     runs-on: [self-hosted, proxmox-ansible]
 
     steps:
