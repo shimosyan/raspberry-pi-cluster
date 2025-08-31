@@ -1,6 +1,7 @@
 resource "proxmox_lxc" "minecraft" {
   # Enable Switch, 1 = true, 0 = false
   count = 1
+  force = true
 
   vmid         = 104
   hostname     = "minecraft"
