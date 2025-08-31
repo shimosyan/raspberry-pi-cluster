@@ -72,67 +72,10 @@ jobs:
 
       # terraform plan を実行する Action
       - uses: suzuki-shunsuke/tfaction/plan@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
-        id: plan
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-
-
-      # Plan結果から作成予定のLXCリソースを抽出（deploy時のロジックと同等）
-      - name: Extract Planned LXC VM Creation
-        id: extract_planned_lxc
-        run: |
-          PLAN_JSON="${{ steps.plan.outputs.plan_json_path }}"
-
-          cat ${PLAN_JSON}
-
-          if [ -f "$PLAN_JSON" ]; then
-            echo "=== Analyzing planned LXC resources ==="
-
-            # proxmox_lxc リソースで action が "create" のものを抽出
-            PLANNED_LXC_CREATES=$(jq -r '
-              .resource_changes[]? 
-              | select(.type == "proxmox_lxc" and (.change.actions[] == "create"))
-              | {
-                  address: .address,
-                  vmid: .change.after.vmid,
-                  hostname: (.change.after.hostname // "unknown")
-                }
-            ' "$PLAN_JSON")
-
-            echo "Planned LXC creations:"
-            echo "$PLANNED_LXC_CREATES"
-
-            if [ ! -z "$PLANNED_LXC_CREATES" ]; then
-              # deploy時と同じ形式で VM ID と Resource ID のリストを作成
-              # 形式: vmid:resource_name,vmid:resource_name
-              LXC_VM_LIST=$(echo "$PLANNED_LXC_CREATES" | jq -r '"\(.vmid):\(.address | sub("proxmox_lxc\\."; ""))"' | tr '\n' ',' | sed -e 's/,$//')
-              
-              echo "Planned LXC VM List: $LXC_VM_LIST"
-              echo "lxc_vm_list=$LXC_VM_LIST" >> "$GITHUB_OUTPUT"
-              
-              # 詳細情報も出力
-              echo "=== Planned LXC Details ==="
-              echo "$PLANNED_LXC_CREATES" | jq -r '"VM ID: \(.vmid), Resource: \(.address), Hostname: \(.hostname)"'
-            else
-              echo "No LXC creation planned"
-              echo "lxc_vm_list=" >> "$GITHUB_OUTPUT"
-            fi
-            
-            # その他のproxmox_lxcリソースの変更も確認
-            echo "=== Other LXC Changes ==="
-            jq -r '
-              .resource_changes[]? 
-              | select(.type == "proxmox_lxc" and (.change.actions[] != "create"))
-              | "Action: \(.change.actions | join(",")), Resource: \(.address), VM ID: \(.change.before.vmid // .change.after.vmid // "unknown")"
-            ' "$PLAN_JSON" || echo "No other LXC changes"
-            
-          else
-            echo "Plan JSON file not found: $PLAN_JSON"
-            echo "lxc_vm_list=" >> "$GITHUB_OUTPUT"
-          fi
-
 
   success:
     needs: terraform-plan

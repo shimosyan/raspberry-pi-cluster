@@ -78,30 +78,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      # Terraform Apply の出力から proxmox_lxc.k8s が Create されたログを抽出して、ログから LXC の VM ID と terraform の Resource ID を抽出し複数の場合はカンマ区切りに整形する
-      - name: Extract Created LXC VM ID
-        id: extract
-        env:
-          DEPLOY_RESULT: "${{ steps.deploy.outputs.stdout }}" # terraform deploy の出力を変数に入れる
-        run: |
-          EXTRACT_RESULT=$(echo "$DEPLOY_RESULT" | grep -E 'proxmox_lxc\..+?: Creation complete after .+? \[id=.+?\]' || true)
-
-          echo "$EXTRACT_RESULT"
-          echo ""
-
-          if [ ! -z "$EXTRACT_RESULT" ]; then
-            LXC_VM_ID_RES_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^proxmox_lxc\.\([a-zA-Z0-9_-]\+\).\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\2:\1/gi' )
-
-            # e.g 100:sample1,102:sample2
-            LXC_VM_LIST=$(echo "$LXC_VM_ID_RES_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
-            echo -n "New LXC VM List = $LXC_VM_LIST"
-
-            echo "lxc_vm_list=$(echo -n "$LXC_VM_LIST")" >> "$GITHUB_OUTPUT"
-            exit 0;
-          fi
-
-          echo "No new lxc."
-
       - uses: suzuki-shunsuke/tfaction/create-follow-up-pr@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
         if: failure()
         with:
@@ -113,6 +89,82 @@ jobs:
         with:
           status: ${{job.status}}
           github_token: ${{ steps.app-token.outputs.token }}
+
+      # Apply後にPRのplan artifactを取得
+      - name: Download Plan Artifacts
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: terraform_plan_json_proxmox
+          path: ./plan-artifacts
+          github-token: ${{ steps.app-token.outputs.token }}
+        continue-on-error: true
+
+      # Plan JSONからLXC VM IDを抽出（従来の方法の代替）
+      - name: Extract Created LXC VM ID
+        id: extract
+        run: |
+          echo "=== Extracting LXC VM IDs from Plan Artifacts ==="
+
+          PLAN_JSON_FILE="./plan-artifacts/tfplan.json"
+
+          if [ -f "$PLAN_JSON_FILE" ]; then
+            echo "✅ Found plan JSON artifact: $PLAN_JSON_FILE"
+
+            # Plan JSONから作成予定だったLXCリソースを抽出
+            PLANNED_LXC_CREATES=$(jq -r '
+              .resource_changes[]?
+              | select(.type == "proxmox_lxc" and (.change.actions[] == "create"))
+              | {
+                  address: .address,
+                  vmid: .change.after.vmid,
+                  hostname: (.change.after.hostname // "unknown")
+                }
+            ' "$PLAN_JSON_FILE")
+
+            echo "Planned LXC creations from artifact:"
+            echo "$PLANNED_LXC_CREATES"
+
+            if [ ! -z "$PLANNED_LXC_CREATES" ]; then
+              # 既存の形式と同じ format: vmid:resource_name
+              LXC_VM_LIST=$(echo "$PLANNED_LXC_CREATES" | jq -r '"\(.vmid):\(.address | sub("proxmox_lxc\\."; ""))"' | tr '\n' ',' | sed -e 's/,$//')
+
+              echo "✅ LXC VM List from artifact: $LXC_VM_LIST"
+              echo "lxc_vm_list=$LXC_VM_LIST" >> "$GITHUB_OUTPUT"
+
+              # 詳細情報をログ出力
+              echo "=== Created LXC Details ==="
+              echo "$PLANNED_LXC_CREATES" | jq -r '"VM ID: \(.vmid), Resource: \(.address), Hostname: \(.hostname)"'
+
+              exit 0
+            else
+              echo "ℹ️ No LXC creation found in plan artifact"
+            fi
+          else
+            echo "⚠️ Plan JSON artifact not found, falling back to stdout parsing"
+          fi
+
+          # フォールバック: 従来のstdout解析方法
+          echo "=== Fallback: Using stdout parsing ==="
+          DEPLOY_RESULT="${{ steps.deploy.outputs.stdout }}"
+          EXTRACT_RESULT=$(echo "$DEPLOY_RESULT" | grep -E 'proxmox_lxc\..+?: Creation complete after .+? \[id=.+?\]' || true)
+
+          echo "Stdout extraction result:"
+          echo "$EXTRACT_RESULT"
+          echo ""
+
+          if [ ! -z "$EXTRACT_RESULT" ]; then
+            LXC_VM_ID_RES_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^proxmox_lxc\.\([a-zA-Z0-9_-]\+\).\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\2:\1/gi' )
+
+            # e.g 100:sample1,102:sample2
+            LXC_VM_LIST=$(echo "$LXC_VM_ID_RES_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
+            echo "✅ LXC VM List from stdout: $LXC_VM_LIST"
+
+            echo "lxc_vm_list=$(echo -n "$LXC_VM_LIST")" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "ℹ️ No new LXC containers detected"
+          echo "lxc_vm_list=" >> "$GITHUB_OUTPUT"
 
   # Extract Create LXC で出力した lxc_vm_list に登録されているときだけ実行する
   ansible-for-proxmox-lxc:
