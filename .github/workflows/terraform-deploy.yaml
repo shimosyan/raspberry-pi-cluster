@@ -91,139 +91,91 @@ jobs:
           github_token: ${{ steps.app-token.outputs.token }}
 
       # Apply後にPRのplan artifactを取得（JSON版）
-      - name: Download Plan Artifact (JSON version)
+      - name: Download Plan Artifact
         run: |
-          echo "=== tfaction JSON artifact download ==="
+          echo "=== Downloading Plan Artifact from PR ==="
 
-          # tfaction setupで設定された環境変数を使用
-          echo "tfaction CI Info:"
-          echo "  CI_INFO_HEAD_REF: $CI_INFO_HEAD_REF"
-          echo "  CI_INFO_HAS_ASSOCIATED_PR: $CI_INFO_HAS_ASSOCIATED_PR"
-          echo "  TFACTION_TARGET: $TFACTION_TARGET"
+          # tfaction環境変数を使用
+          echo "Configuration:"
+          echo "  Branch: $CI_INFO_HEAD_REF"
+          echo "  Target: $TFACTION_TARGET"
+          echo "  Has PR: $CI_INFO_HAS_ASSOCIATED_PR"
 
-          # plan_workflow_nameを取得
+          # 必須チェック
+          if [ "$CI_INFO_HAS_ASSOCIATED_PR" != "true" ] || [ -z "$CI_INFO_HEAD_REF" ]; then
+            echo "❌ No associated PR found or missing branch info"
+            exit 1
+          fi
+
+          # plan workflow名を取得
           PLAN_WORKFLOW_NAME=$(yq eval '.plan_workflow_name' tfaction-root.yaml)
-          echo "  PLAN_WORKFLOW_NAME: $PLAN_WORKFLOW_NAME"
 
-          if [ "$CI_INFO_HAS_ASSOCIATED_PR" = "true" ] && [ ! -z "$CI_INFO_HEAD_REF" ]; then
+          # tfactionの実装をそのまま使用（JSON版）
+          branch=$CI_INFO_HEAD_REF
+          artifact_name=terraform_plan_json_${TFACTION_TARGET//\//__}
 
-            # tfactionの実装に基づく変数設定（JSON版に変更）
-            branch=$CI_INFO_HEAD_REF
-            artifact_name=terraform_plan_json_${TFACTION_TARGET//\//__}
+          echo "Searching for plan from branch '$branch'..."
 
-            echo "✅ Configuration:"
-            echo "  branch: $branch"
-            echo "  artifact_name: $artifact_name"
+          # 最新の成功したworkflow runを取得
+          body=$(gh run list \
+            --repo "${{ github.repository }}" \
+            -w "$PLAN_WORKFLOW_NAME" \
+            -b "$branch" \
+            -L 1 \
+            --json headSha,databaseId,conclusion \
+            --jq '.[0]')
 
-            # tfactionの実装をそのまま使用
-            body=$(gh run list \
-              --repo "${{ github.repository }}" \
-              -w "$PLAN_WORKFLOW_NAME" \
-              -b "$branch" \
-              -L 1 \
-              --json headSha,databaseId,conclusion \
-              --jq '.[0]')
+          if [ -z "$body" ] || [ "$body" = "null" ]; then
+            echo "❌ No workflow runs found for branch '$branch'"
+            exit 1
+          fi
 
-            if [ ! -z "$body" ] && [ "$body" != "null" ]; then
-              run_id=$(echo "$body" | jq -r ".databaseId")
-              head_sha=$(echo "$body" | jq -r ".headSha")
-              conclusion=$(echo "$body" | jq -r ".conclusion")
+          run_id=$(echo "$body" | jq -r ".databaseId")
+          conclusion=$(echo "$body" | jq -r ".conclusion")
 
-              echo "✅ Found workflow run:"
-              echo "  run_id: $run_id"
-              echo "  head_sha: $head_sha"
-              echo "  conclusion: $conclusion"
+          if [ "$conclusion" != "success" ]; then
+            echo "❌ Workflow run $run_id was not successful: $conclusion"
+            exit 1
+          fi
 
-              if [ "$conclusion" = "success" ]; then
-                echo "Downloading JSON artifact: $artifact_name from run $run_id"
+          echo "✅ Found successful workflow run: $run_id"
 
-                # tfactionと同じ方法でダウンロード
-                mkdir -p ./plan-artifacts
+          # JSON artifactをダウンロード
+          mkdir -p ./plan-artifacts
 
-                if gh run download \
-                  --repo "${{ github.repository }}" \
-                  -D "./plan-artifacts" \
-                  -n "$artifact_name" \
-                  "$run_id"; then
+          if gh run download \
+            --repo "${{ github.repository }}" \
+            -D "./plan-artifacts" \
+            -n "$artifact_name" \
+            "$run_id"; then
 
-                  echo "✅ Successfully downloaded JSON artifact"
+            echo "✅ Successfully downloaded plan artifact"
 
-                  # ダウンロード結果の確認
-                  echo "Downloaded files:"
-                  ls -la ./plan-artifacts/
-
-                  # JSON planファイルの確認
-                  if [ -f "./plan-artifacts/tfplan.json" ]; then
-                    echo "✅ tfplan.json found: $(wc -c < ./plan-artifacts/tfplan.json) bytes"
-
-                    # 環境変数として保存（後続ステップで使用可能）
-                    echo "TFACTION_PLAN_DOWNLOADED=true" >> "$GITHUB_ENV"
-                    echo "TFACTION_PLAN_FILE=$PWD/plan-artifacts/tfplan.json" >> "$GITHUB_ENV"
-                    echo "TFACTION_PLAN_TYPE=json" >> "$GITHUB_ENV"
-
-                  else
-                    echo "❌ Expected tfplan.json not found"
-                    echo "Available files:"
-                    find ./plan-artifacts -type f -exec ls -la {} \;
-                  fi
-
-                else
-                  echo "❌ Failed to download JSON artifact: $artifact_name"
-                fi
-
-              else
-                echo "❌ Workflow run was not successful: $conclusion"
-              fi
-
+            # ファイル確認
+            if [ -f "./plan-artifacts/tfplan.json" ]; then
+              echo "✅ Plan JSON verified: $(wc -c < ./plan-artifacts/tfplan.json) bytes"
             else
-              echo "❌ No workflow runs found for workflow $PLAN_WORKFLOW_NAME on branch $branch"
+              echo "❌ Expected tfplan.json not found"
+              ls -la ./plan-artifacts/
+              exit 1
             fi
-
           else
-            echo "❌ No associated PR found"
-            echo "  CI_INFO_HAS_ASSOCIATED_PR: $CI_INFO_HAS_ASSOCIATED_PR"
-            echo "  CI_INFO_HEAD_REF: $CI_INFO_HEAD_REF"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-        continue-on-error: true
-
-      # ダウンロード結果の詳細確認
-      - name: Verify Plan Artifact
-        run: |
-          echo "=== Verifying downloaded plan artifact ==="
-
-          if [ -f "./plan-artifacts/tfplan.json" ]; then
-            echo "✅ Plan JSON file found"
-            echo "File size: $(wc -c < ./plan-artifacts/tfplan.json) bytes"
-            echo "File content preview:"
-            head -20 ./plan-artifacts/tfplan.json
-          else
-            echo "❌ Plan JSON file not found"
-            echo "Available files in plan-artifacts:"
-            ls -la ./plan-artifacts/ 2>/dev/null || echo "Directory does not exist"
-
-            # フォールバック: 最新のartifactを検索
-            echo "=== Fallback: Searching for any recent terraform plan artifact ==="
-            gh api repos/${{ github.repository }}/actions/artifacts \
-              --jq '.artifacts[] | select(.name == "terraform_plan_json_proxmox" and .expired == false) | {id: .id, workflow_run_id: .workflow_run.id, created_at: .created_at}' \
-              | head -5
+            echo "❌ Failed to download artifact: $artifact_name"
+            exit 1
           fi
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      # Plan JSONからLXC VM IDを抽出（従来の方法の代替）
+      # Plan JSONからLXC VM IDを抽出
       - name: Extract Created LXC VM ID
         id: extract
         run: |
           echo "=== Extracting LXC VM IDs from Plan Artifacts ==="
 
-          PLAN_JSON_FILE="./plan-artifacts/tfplan.json"
+          if [ -f "./plan-artifacts/tfplan.json" ]; then
+            echo "✅ Found plan JSON artifact: ./plan-artifacts/tfplan.json"
 
-          if [ -f "$PLAN_JSON_FILE" ]; then
-            echo "✅ Found plan JSON artifact: $PLAN_JSON_FILE"
-
-            # Plan JSONから作成予定だったLXCリソースを抽出
+            # Plan JSONから新規作成されるLXCリソースのみ抽出
             PLANNED_LXC_CREATES=$(jq -r '
               .resource_changes[]?
               | select(.type == "proxmox_lxc" and (.change.actions[] == "create"))
@@ -232,52 +184,28 @@ jobs:
                   vmid: .change.after.vmid,
                   hostname: (.change.after.hostname // "unknown")
                 }
-            ' "$PLAN_JSON_FILE")
+            ' "./plan-artifacts/tfplan.json")
 
-            echo "Planned LXC creations from artifact:"
-            echo "$PLANNED_LXC_CREATES"
+            if [ ! -z "$PLANNED_LXC_CREATES" ] && [ "$PLANNED_LXC_CREATES" != "null" ]; then
+              echo "🆕 New LXC containers from plan artifact:"
+              echo "$PLANNED_LXC_CREATES" | jq -r '"- VM ID: \(.vmid), Resource: \(.address), Hostname: \(.hostname)"'
 
-            if [ ! -z "$PLANNED_LXC_CREATES" ]; then
-              # 既存の形式と同じ format: vmid:resource_name
+              # format: vmid:resource_name (例: 100:sample1,102:sample2)
               LXC_VM_LIST=$(echo "$PLANNED_LXC_CREATES" | jq -r '"\(.vmid):\(.address | sub("proxmox_lxc\\."; ""))"' | tr '\n' ',' | sed -e 's/,$//')
 
-              echo "✅ LXC VM List from artifact: $LXC_VM_LIST"
+              echo "✅ LXC VM List: $LXC_VM_LIST"
               echo "lxc_vm_list=$LXC_VM_LIST" >> "$GITHUB_OUTPUT"
 
-              # 詳細情報をログ出力
-              echo "=== Created LXC Details ==="
-              echo "$PLANNED_LXC_CREATES" | jq -r '"VM ID: \(.vmid), Resource: \(.address), Hostname: \(.hostname)"'
-
-              exit 0
             else
-              echo "ℹ️ No LXC creation found in plan artifact"
+              echo "ℹ️ No new LXC containers found in plan artifact"
+              echo "lxc_vm_list=" >> "$GITHUB_OUTPUT"
             fi
+
           else
-            echo "⚠️ Plan JSON artifact not found, falling back to stdout parsing"
+            echo "❌ Plan JSON artifact not found"
+            echo "lxc_vm_list=" >> "$GITHUB_OUTPUT"
+            exit 1
           fi
-
-          # フォールバック: 従来のstdout解析方法
-          echo "=== Fallback: Using stdout parsing ==="
-          DEPLOY_RESULT="${{ steps.deploy.outputs.stdout }}"
-          EXTRACT_RESULT=$(echo "$DEPLOY_RESULT" | grep -E 'proxmox_lxc\..+?: Creation complete after .+? \[id=.+?\]' || true)
-
-          echo "Stdout extraction result:"
-          echo "$EXTRACT_RESULT"
-          echo ""
-
-          if [ ! -z "$EXTRACT_RESULT" ]; then
-            LXC_VM_ID_RES_ID=$(echo "$EXTRACT_RESULT" | sed -e 's/^proxmox_lxc\.\([a-zA-Z0-9_-]\+\).\+\[id=.\+\/lxc\/\([0-9]\+\)\].*$/\2:\1/gi' )
-
-            # e.g 100:sample1,102:sample2
-            LXC_VM_LIST=$(echo "$LXC_VM_ID_RES_ID" |  tr '\n' ',' |  sed -e 's/,$/\n/g')
-            echo "✅ LXC VM List from stdout: $LXC_VM_LIST"
-
-            echo "lxc_vm_list=$(echo -n "$LXC_VM_LIST")" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "ℹ️ No new LXC containers detected"
-          echo "lxc_vm_list=" >> "$GITHUB_OUTPUT"
 
   # Extract Create LXC で出力した lxc_vm_list に登録されているときだけ実行する
   ansible-for-proxmox-lxc:
