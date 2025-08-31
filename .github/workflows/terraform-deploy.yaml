@@ -228,8 +228,6 @@ jobs:
                 }]
             ' "./plan-artifacts/tfplan.json")
 
-            echo "Raw LXC VM List: $LXC_VM_LIST"
-
             # 空配列チェック
             if [ "$LXC_VM_LIST" = "[]" ] || [ -z "$LXC_VM_LIST" ]; then
               echo "ℹ️ No new LXC containers found in plan artifact"
@@ -238,7 +236,7 @@ jobs:
               echo "🆕 New LXC containers found:"
               echo "$LXC_VM_LIST" | jq -r '.[] | "- VM ID: \(.id), Resource: \(.resource)"'
 
-              echo "✅ LXC VM List (JSON): $LXC_VM_LIST"
+              echo "✅ New LXC VM List: $LXC_VM_LIST"
               echo "lxc_vm_list=$LXC_VM_LIST" >> "$GITHUB_OUTPUT"
             fi
 
@@ -263,6 +261,7 @@ jobs:
           persist-credentials: false
 
       - name: Get Script List
+        id: get-script-list
         run: |
           HOST_FILE=$(ls -F ./host  | grep -v / | sed "s/*//g")
           CONTAINER_FILE=$(ls -F ./container  | grep -v / | sed "s/*//g")
@@ -273,8 +272,8 @@ jobs:
           echo -n "HOST_FILE_LIST = $HOST_FILE_LIST"
           echo -n "CONTAINER_FILE_LIST = $CONTAINER_FILE_LIST"
 
-          echo "HOST_FILE_LIST=$HOST_FILE_LIST" >> $GITHUB_ENV
-          echo "CONTAINER_FILE_LIST=$CONTAINER_FILE_LIST" >> $GITHUB_ENV
+          echo "HOST_FILE_LIST=$HOST_FILE_LIST" >> $GITHUB_OUTPUT
+          echo "CONTAINER_FILE_LIST=$CONTAINER_FILE_LIST" >> $GITHUB_OUTPUT
 
         working-directory: scripts/lxc
 
@@ -284,3 +283,5 @@ jobs:
         working-directory: ansible
         env:
           LXC_VM_LIST: ${{needs.extract-created-lxc.outputs.lxc_vm_list}}
+          HOST_FILE_LIST: ${{steps.get-script-list.outputs.HOST_FILE_LIST}}
+          CONTAINER_FILE_LIST: ${{steps.get-script-list.outputs.CONTAINER_FILE_LIST}}
