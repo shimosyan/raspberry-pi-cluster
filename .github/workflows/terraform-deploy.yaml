@@ -19,6 +19,12 @@ permissions:
   pull-requests: write
   actions: read # artifact を取得するために必要
 
+env:
+  TFACTION_TARGET: proxmox
+  TFACTION_WORKING_DIR: proxmox
+  TFACTION_JOB_TYPE: terraform
+  TFACTION_IS_APPLY: "true"
+
 jobs:
   terraform-apply:
     environment: production
@@ -26,13 +32,6 @@ jobs:
 
     env:
       PM_HTTP_HEADERS: CF-Access-Client-Id,${{ secrets.CF_ACCESS_CLIENT_ID }},CF-Access-Client-Secret,${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-      TFACTION_TARGET: proxmox
-      TFACTION_WORKING_DIR: proxmox
-      TFACTION_JOB_TYPE: terraform
-      TFACTION_IS_APPLY: "true"
-
-    outputs:
-      lxc_vm_list: ${{ steps.extract.outputs.lxc_vm_list }}
 
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -89,6 +88,43 @@ jobs:
         with:
           status: ${{job.status}}
           github_token: ${{ steps.app-token.outputs.token }}
+
+  extract-created-lxc:
+    environment: production
+    runs-on: ubuntu-latest
+
+    outputs:
+      lxc_vm_list: ${{ steps.extract.outputs.lxc_vm_list }}
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - id: app-token
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - uses: aquaproj/aqua-installer@d1fe50798dbadd4eb5b98957290ca175f6b4870f # v4.0.2
+        with:
+          aqua_version: v2.53.9
+        env:
+          AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      # GitHub Secrets を TFAction に渡す Action
+      - uses: suzuki-shunsuke/tfaction/js@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+        with:
+          action: export-secrets
+          secrets: ${{ toJSON(secrets) }}
+
+      # terraform init などの準備を行う Action
+      - uses: suzuki-shunsuke/tfaction/setup@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # Apply後にPRのplan artifactを取得（JSON版）
       - name: Download Plan Artifact
@@ -175,43 +211,50 @@ jobs:
           if [ -f "./plan-artifacts/tfplan.json" ]; then
             echo "✅ Found plan JSON artifact: ./plan-artifacts/tfplan.json"
 
-            # Plan JSONから新規作成されるLXCリソースのみ抽出
-            PLANNED_LXC_CREATES=$(jq -r '
-              .resource_changes[]?
+            # Plan JSONから新規作成されるLXCリソースを直接JSON配列として抽出
+            echo "Analyzing plan for new LXC resources..."
+
+            # デバッグ: まずリソース変更全体を確認
+            echo "=== Resource changes in plan ==="
+            jq '.resource_changes[] | select(.type == "proxmox_lxc") | {address: .address, actions: .change.actions}' "./plan-artifacts/tfplan.json" || echo "No LXC resources found"
+
+            # JSON配列として直接作成
+            LXC_VM_LIST=$(jq -c '
+              [.resource_changes[]
               | select(.type == "proxmox_lxc" and (.change.actions[] == "create"))
               | {
-                  address: .address,
-                  vmid: .change.after.vmid,
-                  hostname: (.change.after.hostname // "unknown")
-                }
+                  id: (.change.after.vmid | tostring),
+                  resource: (.address | sub("proxmox_lxc\\."; "") | sub("\\[.*\\]"; ""))
+                }]
             ' "./plan-artifacts/tfplan.json")
 
-            if [ ! -z "$PLANNED_LXC_CREATES" ] && [ "$PLANNED_LXC_CREATES" != "null" ]; then
-              echo "🆕 New LXC containers from plan artifact:"
-              echo "$PLANNED_LXC_CREATES" | jq -r '"- VM ID: \(.vmid), Resource: \(.address), Hostname: \(.hostname)"'
+            echo "Raw LXC VM List: $LXC_VM_LIST"
 
-              # JSON format: [{"id": "vmid", "resource": "resource_name"}, ...]
-              # countによるインデックス [0], [1] 等も除去
-              LXC_VM_LIST=$(echo "$PLANNED_LXC_CREATES" | jq -c '[.[] | {id: (.vmid | tostring), resource: (.address | sub("proxmox_lxc\\."; "") | sub("\\[.*\\]"; ""))}]')
+            # 空配列チェック
+            if [ "$LXC_VM_LIST" = "[]" ] || [ -z "$LXC_VM_LIST" ]; then
+              echo "ℹ️ No new LXC containers found in plan artifact"
+              echo "lxc_vm_list=[]" >> "$GITHUB_OUTPUT"
+            else
+              echo "🆕 New LXC containers found:"
+              echo "$LXC_VM_LIST" | jq -r '.[] | "- VM ID: \(.id), Resource: \(.resource)"'
 
               echo "✅ LXC VM List (JSON): $LXC_VM_LIST"
               echo "lxc_vm_list=$LXC_VM_LIST" >> "$GITHUB_OUTPUT"
-
-            else
-              echo "ℹ️ No new LXC containers found in plan artifact"
-              echo "lxc_vm_list=" >> "$GITHUB_OUTPUT"
             fi
 
           else
             echo "❌ Plan JSON artifact not found"
-            echo "lxc_vm_list=" >> "$GITHUB_OUTPUT"
+            echo "lxc_vm_list=[]" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
+
   # Extract Create LXC で出力した lxc_vm_list に登録されているときだけ実行する
   ansible-for-proxmox-lxc:
-    needs: terraform-apply # job.terraform-apply に依存するようにする
-    if: needs.terraform-apply.outputs.lxc_vm_list != ''
+    needs:
+      - terraform-apply
+      - extract-created-lxc
+    if: needs.extract-created-lxc.outputs.lxc_vm_list != ''
     runs-on: [self-hosted, proxmox-ansible]
 
     steps:
@@ -240,4 +283,4 @@ jobs:
           ansible-playbook playbook-proxmox-lxc.yaml --extra-vars 'lxc_vm_id="${{ env.LXC_VM_LIST }}" host_script_file="${{ env.HOST_FILE_LIST }}" container_script_file="${{ env.CONTAINER_FILE_LIST }}"'
         working-directory: ansible
         env:
-          LXC_VM_LIST: ${{needs.terraform-apply.outputs.lxc_vm_list}}
+          LXC_VM_LIST: ${{needs.extract-created-lxc.outputs.lxc_vm_list}}
