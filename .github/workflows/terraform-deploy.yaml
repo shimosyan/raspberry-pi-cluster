@@ -228,8 +228,6 @@ jobs:
                 }]
             ' "./plan-artifacts/tfplan.json")
 
-            echo "Raw LXC VM List: $LXC_VM_LIST"
-
             # 空配列チェック
             if [ "$LXC_VM_LIST" = "[]" ] || [ -z "$LXC_VM_LIST" ]; then
               echo "ℹ️ No new LXC containers found in plan artifact"
@@ -238,7 +236,7 @@ jobs:
               echo "🆕 New LXC containers found:"
               echo "$LXC_VM_LIST" | jq -r '.[] | "- VM ID: \(.id), Resource: \(.resource)"'
 
-              echo "✅ LXC VM List (JSON): $LXC_VM_LIST"
+              echo "✅ New LXC VM List: $LXC_VM_LIST"
               echo "lxc_vm_list=$LXC_VM_LIST" >> "$GITHUB_OUTPUT"
             fi
 
