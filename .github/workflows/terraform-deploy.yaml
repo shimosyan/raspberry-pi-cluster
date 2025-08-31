@@ -190,10 +190,11 @@ jobs:
               echo "🆕 New LXC containers from plan artifact:"
               echo "$PLANNED_LXC_CREATES" | jq -r '"- VM ID: \(.vmid), Resource: \(.address), Hostname: \(.hostname)"'
 
-              # format: vmid:resource_name (例: 100:sample1,102:sample2)
-              LXC_VM_LIST=$(echo "$PLANNED_LXC_CREATES" | jq -r '"\(.vmid):\(.address | sub("proxmox_lxc\\."; ""))"' | tr '\n' ',' | sed -e 's/,$//')
+              # JSON format: [{"id": "vmid", "resource": "resource_name"}, ...]
+              # countによるインデックス [0], [1] 等も除去
+              LXC_VM_LIST=$(echo "$PLANNED_LXC_CREATES" | jq -c '[.[] | {id: (.vmid | tostring), resource: (.address | sub("proxmox_lxc\\."; "") | sub("\\[.*\\]"; ""))}]')
 
-              echo "✅ LXC VM List: $LXC_VM_LIST"
+              echo "✅ LXC VM List (JSON): $LXC_VM_LIST"
               echo "lxc_vm_list=$LXC_VM_LIST" >> "$GITHUB_OUTPUT"
 
             else

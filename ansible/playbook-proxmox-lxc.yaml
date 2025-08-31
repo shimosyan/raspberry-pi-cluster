@@ -1,20 +1,15 @@
 - hosts: proxmox
   become: yes
   vars:
-    lxc_vm_id: 100
+    lxc_vm_id: '[]'
     host_script_file: ""
     container_script_file: ""
 
   tasks:
-    # カンマ区切りを Ansible の配列にする
-    - name: Create the temp vm list
+    # JSON文字列をAnsibleの配列に変換
+    - name: Parse LXC VM list from JSON
       set_fact:
-        lxc_vm_list_raw: "{{ lxc_vm_id.split(',') }}"
-
-    - name: Create the vm list
-      set_fact:
-        lxc_vm_list: "{{ lxc_vm_list | default([]) + [ { 'id': item.split(':')[0], 'resource': item.split(':')[1] } ] }}"
-      loop: "{{ lxc_vm_list_raw }}"
+        lxc_vm_list: "{{ lxc_vm_id | from_json }}"
 
     - debug: var=lxc_vm_list
 
