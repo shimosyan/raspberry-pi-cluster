@@ -93,90 +93,126 @@ jobs:
       # Apply後にPRのplan artifactを取得（tfaction方式）
       - name: Download Plan Artifacts
         run: |
-          echo "=== Downloading plan artifact using tfaction approach ==="
+          echo "=== Downloading plan artifact using tfaction configuration ==="
 
-          # 1. 現在のコミットに関連するPRを取得
+          # tfaction-root.yamlから設定を読み込み
+          if [ -f "tfaction-root.yaml" ]; then
+            PLAN_WORKFLOW_NAME=$(yq eval '.plan_workflow_name' tfaction-root.yaml)
+            TARGET=$(yq eval '.target_groups[0].target' tfaction-root.yaml)
+
+            echo "Loaded from tfaction-root.yaml:"
+            echo "  plan_workflow_name: $PLAN_WORKFLOW_NAME"
+            echo "  target: $TARGET"
+          else
+            echo "❌ tfaction-root.yaml not found"
+            exit 1
+          fi
+
           if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "Searching for PR that introduced commit ${{ github.sha }}"
+            COMMIT_SHA="${{ github.sha }}"
+            echo "Looking for PR that introduced commit: $COMMIT_SHA"
+            echo "Target workflow: $PLAN_WORKFLOW_NAME"
 
+            # PRを検索
             PR_DATA=$(gh api repos/${{ github.repository }}/pulls \
               --method GET \
               --field state=closed \
               --field sort=updated \
               --field direction=desc \
               --field per_page=20 \
-              --jq ".[] | select(.merge_commit_sha == \"${{ github.sha }}\" or .head.sha == \"${{ github.sha }}\")")
+              --jq ".[] | select(.merge_commit_sha == \"$COMMIT_SHA\" or .head.sha == \"$COMMIT_SHA\")")
 
             if [ ! -z "$PR_DATA" ]; then
               PR_NUMBER=$(echo "$PR_DATA" | jq -r '.number')
-              echo "Found PR #$PR_NUMBER for this commit"
+              HEAD_SHA=$(echo "$PR_DATA" | jq -r '.head.sha')
 
-              # デバッグ: そのPRのすべてのワークフロー実行を確認
-              echo "=== Debugging: All workflow runs for PR #$PR_NUMBER ==="
-              ALL_RUNS=$(gh api repos/${{ github.repository }}/actions/runs \
+              echo "Found PR #$PR_NUMBER (head SHA: $HEAD_SHA)"
+
+              # tfaction-root.yamlで指定されたワークフロー名で実行を検索
+              echo "Searching for '$PLAN_WORKFLOW_NAME' workflow runs for PR #$PR_NUMBER"
+
+              WORKFLOW_RUNS=$(gh api repos/${{ github.repository }}/actions/runs \
                 --method GET \
                 --field event=pull_request \
+                --field status=completed \
                 --field per_page=100 \
-                --jq ".workflow_runs[] | select(.pull_requests[]?.number == $PR_NUMBER)")
+                --jq ".workflow_runs[] | select(.name == \"$PLAN_WORKFLOW_NAME\" and .pull_requests[]?.number == $PR_NUMBER)")
 
-              if [ ! -z "$ALL_RUNS" ]; then
-                echo "All workflow runs for PR #$PR_NUMBER:"
-                echo "$ALL_RUNS" | jq -r '"Run ID: \(.id), Name: \(.name), Status: \(.status), Conclusion: \(.conclusion), Event: \(.event)"'
-              else
-                echo "No workflow runs found for PR #$PR_NUMBER"
-              fi
+              if [ ! -z "$WORKFLOW_RUNS" ]; then
+                echo "Found $PLAN_WORKFLOW_NAME workflow runs for PR #$PR_NUMBER"
 
-              # より柔軟な検索（名前の完全一致ではなく部分一致）
-              echo "=== Searching with partial name matching ==="
-              TERRAFORM_RUNS=$(echo "$ALL_RUNS" | jq -r 'select(.name | contains("terraform"))')
-
-              if [ ! -z "$TERRAFORM_RUNS" ]; then
-                echo "Found terraform-related workflow runs:"
-                echo "$TERRAFORM_RUNS" | jq -r '"Run ID: \(.id), Name: \(.name), Status: \(.status), Conclusion: \(.conclusion)"'
-
-                # 最新の成功したterraform関連の実行を取得
-                RUN_ID=$(echo "$TERRAFORM_RUNS" | jq -r 'select(.conclusion == "success") | .id' | head -1)
+                # 最新の成功した実行を取得
+                RUN_ID=$(echo "$WORKFLOW_RUNS" | jq -r 'select(.conclusion == "success") | .id' | head -1)
 
                 if [ ! -z "$RUN_ID" ]; then
-                  echo "Found successful terraform workflow run: $RUN_ID"
+                  echo "Found successful workflow run: $RUN_ID"
 
-                  # そのrunのartifactを確認
-                  echo "=== Checking artifacts in run $RUN_ID ==="
+                  # artifactを確認
                   ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts \
-                    --jq ".artifacts[]")
+                    --jq '.artifacts[] | select(.expired == false)')
 
                   if [ ! -z "$ARTIFACTS" ]; then
                     echo "Available artifacts in run $RUN_ID:"
-                    echo "$ARTIFACTS" | jq -r '"Name: \(.name), Size: \(.size_in_bytes), Expired: \(.expired)"'
+                    echo "$ARTIFACTS" | jq -r '"- \(.name) (\(.size_in_bytes) bytes)"'
 
-                    # terraform plan関連のartifactを検索
-                    PLAN_ARTIFACT=$(echo "$ARTIFACTS" | jq -r 'select(.name | contains("terraform") or contains("plan")) | .name' | head -1)
+                    # tfactionが期待するartifact名で検索
+                    # terraform_plan_json_${target} の形式
+                    EXPECTED_ARTIFACT_NAME="terraform_plan_json_${TARGET}"
+
+                    PLAN_ARTIFACT=$(echo "$ARTIFACTS" | jq -r --arg name "$EXPECTED_ARTIFACT_NAME" 'select(.name == $name) | .name')
 
                     if [ ! -z "$PLAN_ARTIFACT" ]; then
-                      echo "Found plan artifact: $PLAN_ARTIFACT"
+                      echo "✅ Found expected plan artifact: $PLAN_ARTIFACT"
 
                       mkdir -p ./plan-artifacts
+                      gh run download $RUN_ID --name "$PLAN_ARTIFACT" --dir ./plan-artifacts
 
-                      # artifactをダウンロード
-                      gh run download $RUN_ID \
-                        --name "$PLAN_ARTIFACT" \
-                        --dir ./plan-artifacts
-
-                      echo "✅ Successfully downloaded plan artifact: $PLAN_ARTIFACT"
+                      echo "✅ Successfully downloaded plan artifact"
+                      ls -la ./plan-artifacts/
                     else
-                      echo "❌ No terraform plan artifact found"
+                      echo "Expected artifact '$EXPECTED_ARTIFACT_NAME' not found"
+                      echo "Available artifacts:"
+                      echo "$ARTIFACTS" | jq -r '.name'
+
+                      # フォールバック: terraform plan関連のartifactを検索
+                      FALLBACK_ARTIFACT=$(echo "$ARTIFACTS" | jq -r 'select(.name | contains("terraform_plan") or contains("plan_json")) | .name' | head -1)
+
+                      if [ ! -z "$FALLBACK_ARTIFACT" ]; then
+                        echo "Using fallback artifact: $FALLBACK_ARTIFACT"
+
+                        mkdir -p ./plan-artifacts
+                        gh run download $RUN_ID --name "$FALLBACK_ARTIFACT" --dir ./plan-artifacts
+
+                        echo "✅ Downloaded fallback plan artifact"
+                      else
+                        echo "❌ No terraform plan artifacts found"
+                      fi
                     fi
                   else
                     echo "❌ No artifacts found in run $RUN_ID"
                   fi
                 else
-                  echo "❌ No successful terraform workflow run found"
+                  echo "❌ No successful workflow run found for PR #$PR_NUMBER"
                 fi
               else
-                echo "❌ No terraform-related workflow runs found for PR #$PR_NUMBER"
+                echo "❌ No '$PLAN_WORKFLOW_NAME' workflow runs found for PR #$PR_NUMBER"
+
+                # デバッグ: すべてのワークフロー実行を確認
+                echo "=== Debug: All workflow runs for PR #$PR_NUMBER ==="
+                ALL_RUNS=$(gh api repos/${{ github.repository }}/actions/runs \
+                  --method GET \
+                  --field event=pull_request \
+                  --field per_page=50 \
+                  --jq ".workflow_runs[] | select(.pull_requests[]?.number == $PR_NUMBER)")
+
+                if [ ! -z "$ALL_RUNS" ]; then
+                  echo "$ALL_RUNS" | jq -r '"Run ID: \(.id), Name: \(.name), Status: \(.status), Conclusion: \(.conclusion)"'
+                else
+                  echo "No workflow runs found for PR #$PR_NUMBER"
+                fi
               fi
             else
-              echo "❌ No PR found for commit ${{ github.sha }}"
+              echo "❌ No PR found for commit $COMMIT_SHA"
             fi
           else
             echo "❌ Not a main branch push event"
