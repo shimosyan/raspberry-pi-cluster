@@ -1,6 +1,11 @@
 name: Update aqua-checksums.json
 
-on: pull_request
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - aqua.yaml
 
 concurrency:
   group: ${{ github.workflow }}-update-aqua-checksums-${{ github.ref }}  # デプロイしないため PR レベルの排他制御
@@ -31,17 +36,29 @@ jobs:
         with:
           action: get-global-config
 
+      - id: diff
+        run: |
+          if git diff --exit-code ./aqua-checksums.json; then
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=1" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Commit and push
-        if: steps.global-config.outputs.securefix_action_server_repository == ''
+        if: steps.global-config.outputs.securefix_action_server_repository == '' && steps.diff.outputs.changed == '1'
         uses: suzuki-shunsuke/commit-action@ca8e761ccb3533295065c3e90a8555fcdde8b467 # v0.0.10
         with:
           app_id: ${{secrets.APP_ID}}
           app_private_key: ${{ secrets.PRIVATE_KEY }}
+          commit_message: "update: aqua-checksums.json"
+          files: aqua-checksums.json
 
       - name: Commit and push
-        if: steps.global-config.outputs.securefix_action_server_repository != ''
+        if: steps.global-config.outputs.securefix_action_server_repository != '' && steps.diff.outputs.changed == '1'
         uses: securefix-action/action@05036cda4e1fcaeba401d23261056048fe20ba27 # v0.2.2
         with:
           app_id: ${{secrets.APP_ID}}
           app_private_key: ${{ secrets.PRIVATE_KEY }}
+          commit_message: "update: aqua-checksums.json"
+          files: aqua-checksums.json
           server_repository: ${{ steps.global-config.outputs.securefix_action_server_repository }}
