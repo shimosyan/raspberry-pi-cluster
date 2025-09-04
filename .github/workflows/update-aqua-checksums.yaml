@@ -31,3 +31,4 @@ jobs:
         with:
           app_id: ${{secrets.APP_ID}}
           app_private_key: ${{ secrets.PRIVATE_KEY }}
+          server_repository: ${{ github.repository }}
