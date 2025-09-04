@@ -38,9 +38,18 @@ jobs:
 
       - id: diff
         run: |
-          if git diff --exit-code ./aqua-checksums.json; then
+          # git管理されていないファイルも含めて変更を検出
+          if [ ! -f ./aqua-checksums.json ]; then
+            # ファイルが存在しない場合は変更なしとみなす
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+          elif ! git ls-files --error-unmatch ./aqua-checksums.json >/dev/null 2>&1; then
+            # ファイルが存在するがgit管理されていない場合（新規作成）
+            echo "changed=1" >> "$GITHUB_OUTPUT"
+          elif git diff --exit-code ./aqua-checksums.json; then
+            # 既存ファイルで変更なし
             echo "changed=0" >> "$GITHUB_OUTPUT"
           else
+            # 既存ファイルで変更あり
             echo "changed=1" >> "$GITHUB_OUTPUT"
           fi
 
