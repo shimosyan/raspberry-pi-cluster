@@ -26,9 +26,14 @@ jobs:
       - name: Fix aqua-checksums.json
         run: aqua upc -prune
 
+      - uses: suzuki-shunsuke/tfaction/js@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+        id: global-config
+        with:
+          action: get-global-config
+
       - name: Commit and push
         uses: securefix-action/action@05036cda4e1fcaeba401d23261056048fe20ba27 # v0.2.2
         with:
           app_id: ${{secrets.APP_ID}}
           app_private_key: ${{ secrets.PRIVATE_KEY }}
-          server_repository: ${{ github.repository }}
+          server_repository: ${{ steps.global-config.outputs.securefix_action_server_repository }}
