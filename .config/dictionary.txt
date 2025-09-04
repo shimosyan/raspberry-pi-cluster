@@ -46,3 +46,10 @@ suzuki-shunsuke
 tfaction
 aquaproj
 tflint
+securefix
+unmatch
+elif
+tostring
+aquasecurity
+reviewdog
+telmate
