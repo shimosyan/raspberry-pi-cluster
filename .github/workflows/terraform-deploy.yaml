@@ -1,4 +1,4 @@
-name: Proxmox Deploy
+name: Terraform Deploy
 on:
   push:
     branches:
@@ -285,3 +285,35 @@ jobs:
           LXC_VM_LIST: ${{needs.extract-created-lxc.outputs.lxc_vm_list}}
           HOST_FILE_LIST: ${{steps.get-script-list.outputs.HOST_FILE_LIST}}
           CONTAINER_FILE_LIST: ${{steps.get-script-list.outputs.CONTAINER_FILE_LIST}}
+
+  success:
+    needs:
+      - terraform-apply
+      - extract-created-lxc
+      - ansible-for-proxmox-lxc
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check job result
+        run: |
+          RESULT="${{ needs.terraform-apply.result }}"
+          if [[ $RESULT != "success" && $RESULT != "skipped" ]]; then
+            echo "This workflow failed or was cancelled!"
+            exit 1
+          fi
+
+          RESULT="${{ needs.extract-created-lxc.result }}"
+          if [[ $RESULT != "success" && $RESULT != "skipped" ]]; then
+            echo "This workflow failed or was cancelled!"
+            exit 1
+          fi
+
+          RESULT="${{ needs.ansible-for-proxmox-lxc.result }}"
+          if [[ $RESULT != "success" && $RESULT != "skipped" ]]; then
+            echo "This workflow failed or was cancelled!"
+            exit 1
+          fi
+
+          echo "Success!!"
+          exit 0

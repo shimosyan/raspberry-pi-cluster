@@ -1,4 +1,4 @@
-name: document-pull-request
+name: Document Pull Request
 
 on:
   pull_request:
