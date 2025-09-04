@@ -2,6 +2,10 @@ name: Update aqua-checksums.json
 
 on: pull_request
 
+concurrency:
+  group: ${{ github.workflow }}-update-aqua-checksums-${{ github.ref }}  # デプロイしないため PR レベルの排他制御
+  cancel-in-progress: true # PR の更新があった場合は前のジョブをキャンセルする
+
 permissions: {}
 
 jobs:
