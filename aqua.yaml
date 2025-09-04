@@ -2,7 +2,7 @@
 # https://aquaproj.github.io/
 checksum:
   enabled: true
-  require_checksum: true
+#   require_checksum: true
 #   supported_envs:
 #   - all
 registries:
