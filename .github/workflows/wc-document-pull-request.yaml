@@ -3,9 +3,9 @@ name: Document Pull Request
 on:
   workflow_call:
     secrets:
-      gh_app_id:
+      APP_ID:
         required: true
-      gh_app_private_key:
+      PRIVATE_KEY:
         required: true
 
 permissions: {}
@@ -25,8 +25,8 @@ jobs:
       - id: app-token
         uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
         with:
-          app-id: ${{ secrets.gh_app_id }}
-          private-key: ${{ secrets.gh_app_private_key }}
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
 
       - run: github-comment exec -- github-comment hide
         env:

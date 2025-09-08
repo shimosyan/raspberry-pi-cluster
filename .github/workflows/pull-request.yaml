@@ -50,8 +50,13 @@ jobs:
     secrets:
       gh_app_id: ${{secrets.APP_ID}}
       gh_app_private_key: ${{secrets.PRIVATE_KEY}}
-      cf_access_client_id: ${{secrets.CF_ACCESS_CLIENT_ID}}
-      cf_access_client_secret: ${{secrets.CF_ACCESS_CLIENT_SECRET}}
+      CF_ACCESS_CLIENT_ID: ${{secrets.CF_ACCESS_CLIENT_ID}}
+      CF_ACCESS_CLIENT_SECRET: ${{secrets.CF_ACCESS_CLIENT_SECRET}}
+      DEFAULT_ROOT_PW: ${{secrets.DEFAULT_ROOT_PW}}
+      PM_READONLY_API_TOKEN_ID: ${{secrets.PM_READONLY_API_TOKEN_ID}}
+      PM_READONLY_API_TOKEN_SECRET: ${{secrets.PM_READONLY_API_TOKEN_SECRET}}
+      PM_WRITABLE_API_TOKEN_ID: ${{secrets.PM_WRITABLE_API_TOKEN_ID}}
+      PM_WRITABLE_API_TOKEN_SECRET: ${{secrets.PM_WRITABLE_API_TOKEN_SECRET}}
     permissions:
       id-token: write
       contents: read
