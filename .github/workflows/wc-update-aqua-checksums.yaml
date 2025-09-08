@@ -1,6 +1,12 @@
 name: Update aqua-checksums.json
 
-on: workflow_call
+on:
+  workflow_call:
+    secrets:
+      gh_app_id:
+        required: true
+      gh_app_private_key:
+        required: true
 
 permissions: {}
 
@@ -66,8 +72,8 @@ jobs:
         if: steps.global-config.outputs.securefix_action_server_repository == '' && steps.diff.outputs.changed == '1'
         uses: suzuki-shunsuke/commit-action@ca8e761ccb3533295065c3e90a8555fcdde8b467 # v0.0.10
         with:
-          app_id: ${{secrets.APP_ID}}
-          app_private_key: ${{ secrets.PRIVATE_KEY }}
+          app_id: ${{secrets.gh_app_id}}
+          app_private_key: ${{ secrets.gh_app_private_key }}
           commit_message: "update: aqua-checksums.json"
           files: aqua-checksums.json
 
@@ -75,8 +81,8 @@ jobs:
         if: steps.global-config.outputs.securefix_action_server_repository != '' && steps.diff.outputs.changed == '1'
         uses: securefix-action/action@05036cda4e1fcaeba401d23261056048fe20ba27 # v0.2.2
         with:
-          app_id: ${{secrets.APP_ID}}
-          app_private_key: ${{ secrets.PRIVATE_KEY }}
+          app_id: ${{secrets.gh_app_id}}
+          app_private_key: ${{ secrets.gh_app_private_key }}
           commit_message: "update: aqua-checksums.json"
           files: aqua-checksums.json
           server_repository: ${{ steps.global-config.outputs.securefix_action_server_repository }}

@@ -1,6 +1,16 @@
 name: Terraform Pull Request
 
-on: workflow_call
+on:
+  workflow_call:
+    secrets:
+      gh_app_id:
+        required: true
+      gh_app_private_key:
+        required: true
+      cf_access_client_id:
+        required: true
+      cf_access_client_secret:
+        required: true
 
 permissions: {}
 
@@ -29,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PM_HTTP_HEADERS: CF-Access-Client-Id,${{ secrets.CF_ACCESS_CLIENT_ID }},CF-Access-Client-Secret,${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      PM_HTTP_HEADERS: CF-Access-Client-Id,${{ secrets.cf_access_client_id }},CF-Access-Client-Secret,${{ secrets.cf_access_client_secret }}
       TFACTION_TARGET: proxmox
       TFACTION_WORKING_DIR: proxmox
       TFACTION_JOB_TYPE: terraform
@@ -42,8 +52,8 @@ jobs:
       - id: app-token
         uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
         with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
+          app-id: ${{ secrets.gh_app_id }}
+          private-key: ${{ secrets.gh_app_private_key }}
 
       - uses: aquaproj/aqua-installer@ea518c135a02fc11ff8024364510c181a5c6b342 # v4.0.3
         with:

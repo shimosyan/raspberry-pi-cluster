@@ -27,6 +27,9 @@ jobs:
 
   document-test:
     uses: ./.github/workflows/wc-document-pull-request.yaml
+    secrets:
+      gh_app_id: ${{secrets.APP_ID}}
+      gh_app_private_key: ${{secrets.APP_PRIVATE_KEY}}
     permissions:
       id-token: write
       contents: read
@@ -34,6 +37,9 @@ jobs:
 
   update-aqua-checksums:
     uses: ./.github/workflows/wc-update-aqua-checksums.yaml
+    secrets:
+      gh_app_id: ${{secrets.APP_ID}}
+      gh_app_private_key: ${{secrets.APP_PRIVATE_KEY}}
     permissions:
       id-token: write
       contents: read
@@ -41,6 +47,11 @@ jobs:
 
   terraform-plan:
     uses: ./.github/workflows/wc-terraform-pull-request.yaml
+    secrets:
+      gh_app_id: ${{secrets.APP_ID}}
+      gh_app_private_key: ${{secrets.APP_PRIVATE_KEY}}
+      cf_access_client_id: ${{secrets.CF_ACCESS_CLIENT_ID}}
+      cf_access_client_secret: ${{secrets.CF_ACCESS_CLIENT_SECRET}}
     permissions:
       id-token: write
       contents: read
