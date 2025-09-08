@@ -41,6 +41,7 @@ jobs:
           filters: |
             test-files:
               - .github/workflows/terraform**
+              - .github/workflows/wc-terraform**
               - tfaction-root.yaml
               - proxmox/**
               - aqua.yaml
