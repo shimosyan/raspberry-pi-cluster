@@ -8,7 +8,10 @@ on:
       PRIVATE_KEY:
         required: true
 
-permissions: {}
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
 
 jobs:
   check-documentation:
