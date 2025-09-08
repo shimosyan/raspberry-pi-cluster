@@ -28,8 +28,8 @@ jobs:
   document-test:
     uses: ./.github/workflows/wc-document-pull-request.yaml
     secrets:
-      gh_app_id: ${{secrets.APP_ID}}
-      gh_app_private_key: ${{secrets.PRIVATE_KEY}}
+      APP_ID: ${{secrets.APP_ID}}
+      PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
     permissions:
       id-token: write
       contents: read
@@ -38,8 +38,8 @@ jobs:
   update-aqua-checksums:
     uses: ./.github/workflows/wc-update-aqua-checksums.yaml
     secrets:
-      gh_app_id: ${{secrets.APP_ID}}
-      gh_app_private_key: ${{secrets.PRIVATE_KEY}}
+      APP_ID: ${{secrets.APP_ID}}
+      PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
     permissions:
       id-token: write
       contents: read
@@ -48,8 +48,8 @@ jobs:
   terraform-plan:
     uses: ./.github/workflows/wc-terraform-pull-request.yaml
     secrets:
-      gh_app_id: ${{secrets.APP_ID}}
-      gh_app_private_key: ${{secrets.PRIVATE_KEY}}
+      APP_ID: ${{secrets.APP_ID}}
+      PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
       CF_ACCESS_CLIENT_ID: ${{secrets.CF_ACCESS_CLIENT_ID}}
       CF_ACCESS_CLIENT_SECRET: ${{secrets.CF_ACCESS_CLIENT_SECRET}}
       DEFAULT_ROOT_PW: ${{secrets.DEFAULT_ROOT_PW}}
