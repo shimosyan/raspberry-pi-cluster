@@ -1,18 +1,26 @@
 name: Terraform Pull Request
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - .github/workflows/terraform**
-      - tfaction-root.yaml
-      - proxmox/**
-      - aqua.yaml
-
-concurrency:
-  group: ${{ github.workflow }}-terraform-${{ github.ref }}  # デプロイしないため PR レベルの排他制御
-  cancel-in-progress: true # PR の更新があった場合は前のジョブをキャンセルする
+  workflow_call:
+    secrets:
+      APP_ID:
+        required: true
+      PRIVATE_KEY:
+        required: true
+      CF_ACCESS_CLIENT_ID:
+        required: true
+      CF_ACCESS_CLIENT_SECRET:
+        required: true
+      DEFAULT_ROOT_PW:
+        required: true
+      PM_READONLY_API_TOKEN_ID:
+        required: true
+      PM_READONLY_API_TOKEN_SECRET:
+        required: true
+      PM_WRITABLE_API_TOKEN_ID:
+        required: true
+      PM_WRITABLE_API_TOKEN_SECRET:
+        required: true
 
 permissions:
   id-token: write
@@ -20,7 +28,26 @@ permissions:
   pull-requests: write
 
 jobs:
+  path-filter:
+    # Get changed files to filter jobs
+    timeout-minutes: 10
+    outputs:
+      test-files: ${{steps.changes.outputs.test-files}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        id: changes
+        with:
+          filters: |
+            test-files:
+              - .github/workflows/terraform**
+              - tfaction-root.yaml
+              - proxmox/**
+              - aqua.yaml
+
   terraform-plan:
+    needs: path-filter
+    if: needs.path-filter.outputs.test-files == 'true'
     runs-on: ubuntu-latest
 
     env:
@@ -76,20 +103,3 @@ jobs:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-
-  success:
-    needs: terraform-plan
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check job result
-        run: |
-          RESULT="${{ needs.terraform-plan.result }}"
-          if [[ $RESULT != "success" && $RESULT != "skipped" ]]; then
-            echo "This workflow failed or was cancelled!"
-            exit 1
-          fi
-
-          echo "Success!!"
-          exit 0

@@ -1,4 +1,4 @@
-plan_workflow_name: Terraform Pull Request
+plan_workflow_name: Pull Request
 
 tflint:
   enabled: true

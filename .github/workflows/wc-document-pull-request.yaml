@@ -1,13 +1,17 @@
 name: Document Pull Request
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_call:
+    secrets:
+      APP_ID:
+        required: true
+      PRIVATE_KEY:
+        required: true
 
-concurrency:
-  group: ${{ github.workflow }}-document-${{ github.ref }}  # デプロイしないため PR レベルの排他制御
-  cancel-in-progress: true # PR の更新があった場合は前のジョブをキャンセルする
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
 
 jobs:
   check-documentation:
@@ -43,20 +47,3 @@ jobs:
         run: github-comment exec -k common-error -var env:Staging -var title:"Check Markdown Failed" -- markdownlint-cli2 "**/*.md" --config ".markdownlint.json"
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-
-  success:
-    needs: check-documentation
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check job result
-        run: |
-          RESULT="${{ needs.check-documentation.result }}"
-          if [[ $RESULT != "success" && $RESULT != "skipped" ]]; then
-            echo "This workflow failed or was cancelled!"
-            exit 1
-          fi
-
-          echo "Success!!"
-          exit 0
