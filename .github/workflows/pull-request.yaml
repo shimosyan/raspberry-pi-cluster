@@ -13,7 +13,7 @@ concurrency:
 permissions: {}
 
 jobs:
-  success:
+  status-check:
     needs:
       - document-test
       - update-aqua-checksums
