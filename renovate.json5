@@ -40,7 +40,7 @@
   prConcurrentLimit: 10,
   branchConcurrentLimit: 20,
 
-  minimumReleaseAge: 3, // 公開後3日間は PR を作成しない
+  minimumReleaseAge: '3 days', // 公開後3日間は PR を作成しない
 
   schedule: [
     '* 18-23,0-4 * * *',
