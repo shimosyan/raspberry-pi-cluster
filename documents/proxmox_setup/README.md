@@ -43,3 +43,16 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys KEY_ID
 カーネル更新がある場合は、再起動が必要です。
 
 リブートコマンドをたたくなり上部メニューの再起動ボタンを押して再起動します。
+
+## 物理マシンの設定変更
+
+### Vim の設定変更
+
+デフォルト設定では互換モードで起動してしまうため十字キーによる操作ができません。
+
+Proxmox のダッシュボード右上にある「シェル」を開き、以下のコマンドで登録すれば解決できます。
+
+```sh
+echo "set nocompatible" >> ~/.vimrc
+echo "set backspace=indent,eol,start" >> ~/.vimrc
+```
