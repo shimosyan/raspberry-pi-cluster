@@ -56,27 +56,3 @@ Proxmox のダッシュボード右上にある「シェル」を開き、以下
 echo "set nocompatible" >> ~/.vimrc
 echo "set backspace=indent,eol,start" >> ~/.vimrc
 ```
-
-### NFS のマウント設定の変更
-
-Proxmox に NFS のマウントを有効化した後に実施してください。
-
-Proxmox のダッシュボード右上にある「シェル」を開き、以下のように操作します。
-
-```sh
-# Vim などのエディタでファイルを開きます
-vi /etc/pve/storage.cfg
-```
-
-NFSの設定項目を探し、options soft の一行を追加します。
-
-```text
-nfs: synology-nfs
-        export /volume1/proxmox
-        path /mnt/pve/synology-nfs
-        server 192.168.6.21
-        # ↓この行を追加↓
-        options soft
-        content images,vztmpl,backup,iso
-        prune-backups keep-all=1
-```
