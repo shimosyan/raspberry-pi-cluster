@@ -16,6 +16,8 @@ resource "proxmox_lxc" "github_action_runner_and_ansible" {
   password     = var.root_pw
   start        = true # Ansible でスクリプトを実行するために起動が必要
   force        = false
+  hagroup      = "all-4gb-2"
+  hastate      = "started"
 
   // rootfs を記述しないとクラッシュするので注意
   rootfs {
