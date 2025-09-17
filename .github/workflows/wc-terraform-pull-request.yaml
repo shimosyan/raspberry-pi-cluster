@@ -80,27 +80,27 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # GitHub Secrets を TFAction に渡す Action
-      - uses: suzuki-shunsuke/tfaction/js@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+      - uses: suzuki-shunsuke/tfaction/js@bf4e4fed5bfc227b0987bfb7a7de167a18158f74 # v1.19.3
         with:
           action: export-secrets
           secrets: ${{ toJSON(secrets) }}
 
       # terraform init などの準備を行う Action
-      - uses: suzuki-shunsuke/tfaction/setup@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+      - uses: suzuki-shunsuke/tfaction/setup@bf4e4fed5bfc227b0987bfb7a7de167a18158f74 # v1.19.3
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # terraform fmt 等を実行する Action
-      - uses: suzuki-shunsuke/tfaction/test@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+      - uses: suzuki-shunsuke/tfaction/test@bf4e4fed5bfc227b0987bfb7a7de167a18158f74 # v1.19.3
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # terraform plan を実行する Action
-      - uses: suzuki-shunsuke/tfaction/plan@c7f4e11bb3b673f40c3894b7612669e149d7b452 # v1.19.2
+      - uses: suzuki-shunsuke/tfaction/plan@bf4e4fed5bfc227b0987bfb7a7de167a18158f74 # v1.19.3
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
