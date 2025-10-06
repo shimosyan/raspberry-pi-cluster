@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/suzuki-shunsuke/tfaction/refs/tags/v1.15.5/schema/tfaction-root.json
+
 plan_workflow_name: Pull Request
 
 tflint:
