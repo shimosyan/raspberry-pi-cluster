@@ -82,7 +82,7 @@ jobs:
 
       - name: Commit and push
         if: steps.global-config.outputs.securefix_action_server_repository != '' && steps.diff.outputs.changed == '1'
-        uses: securefix-action/action@05036cda4e1fcaeba401d23261056048fe20ba27 # v0.2.2
+        uses: securefix-action/action@873d4cea396431307feaa600ce7a144b3dfc747d # v0.3.0
         with:
           app_id: ${{secrets.APP_ID}}
           app_private_key: ${{ secrets.PRIVATE_KEY }}
