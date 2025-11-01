@@ -53,7 +53,7 @@ jobs:
           AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # GitHub Secrets を TFAction に渡す Action
-      - uses: suzuki-shunsuke/tfaction/js@ab77216aa7cdec60c57b71cf970d6492ac241b1c # v1.19.5
+      - uses: suzuki-shunsuke/tfaction/js@7f13fd8815c30cde9c665b81e611c8ebdf9217b7 # v1.20.0
         with:
           action: export-secrets
           secrets: ${{ toJSON(secrets) }}
@@ -65,26 +65,26 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # terraform init などの準備を行う Action
-      - uses: suzuki-shunsuke/tfaction/setup@ab77216aa7cdec60c57b71cf970d6492ac241b1c # v1.19.5
+      - uses: suzuki-shunsuke/tfaction/setup@7f13fd8815c30cde9c665b81e611c8ebdf9217b7 # v1.20.0
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # terraform apply を実行する Action
-      - uses: suzuki-shunsuke/tfaction/apply@ab77216aa7cdec60c57b71cf970d6492ac241b1c # v1.19.5
+      - uses: suzuki-shunsuke/tfaction/apply@7f13fd8815c30cde9c665b81e611c8ebdf9217b7 # v1.20.0
         id: deploy
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - uses: suzuki-shunsuke/tfaction/create-follow-up-pr@ab77216aa7cdec60c57b71cf970d6492ac241b1c # v1.19.5
+      - uses: suzuki-shunsuke/tfaction/create-follow-up-pr@7f13fd8815c30cde9c665b81e611c8ebdf9217b7 # v1.20.0
         if: failure()
         with:
           github_token: ${{ steps.app-token.outputs.token }}
 
-      - uses: suzuki-shunsuke/tfaction/update-drift-issue@ab77216aa7cdec60c57b71cf970d6492ac241b1c # v1.19.5
+      - uses: suzuki-shunsuke/tfaction/update-drift-issue@7f13fd8815c30cde9c665b81e611c8ebdf9217b7 # v1.20.0
         # CHECK: You can remove this step if you don't use drift detection
         if: always()
         with:
@@ -116,13 +116,13 @@ jobs:
           AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # GitHub Secrets を TFAction に渡す Action
-      - uses: suzuki-shunsuke/tfaction/js@ab77216aa7cdec60c57b71cf970d6492ac241b1c # v1.19.5
+      - uses: suzuki-shunsuke/tfaction/js@7f13fd8815c30cde9c665b81e611c8ebdf9217b7 # v1.20.0
         with:
           action: export-secrets
           secrets: ${{ toJSON(secrets) }}
 
       # terraform init や必要な環境変数などの準備を行う Action
-      - uses: suzuki-shunsuke/tfaction/setup@ab77216aa7cdec60c57b71cf970d6492ac241b1c # v1.19.5
+      - uses: suzuki-shunsuke/tfaction/setup@7f13fd8815c30cde9c665b81e611c8ebdf9217b7 # v1.20.0
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
