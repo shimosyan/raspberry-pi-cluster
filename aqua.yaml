@@ -13,7 +13,7 @@ packages:
   - name: terraform-linters/tflint@v0.60.0
   - name: aquasecurity/trivy@v0.68.1
   - name: reviewdog/reviewdog@v0.21.0
-  - name: terraform-docs/terraform-docs@v0.20.0
+  - name: terraform-docs/terraform-docs@v0.21.0
   - name: suzuki-shunsuke/tfaction-go@v0.2.3
   - name: suzuki-shunsuke/github-comment@v6.4.1
   - name: int128/ghcp@v1.15.1
