@@ -11,7 +11,7 @@ registries:
 packages:
   - name: hashicorp/terraform@v1.14.4
   - name: terraform-linters/tflint@v0.60.0
-  - name: aquasecurity/trivy@v0.69.0
+  - name: aquasecurity/trivy@v0.69.1
   - name: reviewdog/reviewdog@v0.21.0
   - name: terraform-docs/terraform-docs@v0.21.0
   - name: suzuki-shunsuke/tfaction-go@v0.2.3
