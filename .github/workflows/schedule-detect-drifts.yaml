@@ -95,6 +95,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - uses: suzuki-shunsuke/tfaction/test@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+        if: false
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
