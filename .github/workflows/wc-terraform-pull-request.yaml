@@ -94,7 +94,6 @@ jobs:
 
       # terraform fmt 等を実行する Action
       - uses: suzuki-shunsuke/tfaction/test@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
-        if: false
         with:
           github_token: ${{ steps.app-token.outputs.token }}
         env:
