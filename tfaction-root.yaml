@@ -6,7 +6,7 @@ tflint:
   enabled: true
   fix: true
 trivy:
-  enabled: false
+  enabled: true
 
 drift_detection:
   enabled: true
