@@ -38,7 +38,7 @@ jobs:
   update-aqua-checksums:
     uses: ./.github/workflows/wc-update-aqua-checksums.yaml
     secrets:
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      APP_ID: ${{ secrets.APP_ID }}
       PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
     permissions:
       id-token: write
