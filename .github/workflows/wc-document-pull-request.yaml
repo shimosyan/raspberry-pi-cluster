@@ -3,7 +3,7 @@ name: Document Pull Request
 on:
   workflow_call:
     secrets:
-      APP_ID:
+      CLIENT_ID:
         required: true
       PRIVATE_KEY:
         required: true
