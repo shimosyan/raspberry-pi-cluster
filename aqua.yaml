@@ -7,7 +7,7 @@ checksum:
 #   - all
 registries:
 - type: standard
-  ref: v4.505.0 # renovate: depName=aquaproj/aqua-registry
+  ref: v4.506.0 # renovate: depName=aquaproj/aqua-registry
 packages:
   - name: hashicorp/terraform@v1.15.1
   - name: terraform-linters/tflint@v0.62.0
