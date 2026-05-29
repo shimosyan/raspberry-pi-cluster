@@ -48,11 +48,6 @@ jobs:
       - name: Fix aqua-checksums.json
         run: aqua upc -prune
 
-      - uses: suzuki-shunsuke/tfaction/js@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
-        id: global-config
-        with:
-          action: get-global-config
-
       - name: Check if aqua-checksums.json is changed
         id: diff
         run: |
