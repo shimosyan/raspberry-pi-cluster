@@ -41,53 +41,78 @@ jobs:
           persist-credentials: false
 
       - id: app-token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
       - uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
         with:
-          aqua_version: v2.56.7
+          aqua_version: v2.59.0
         env:
           AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      # GitHub Secrets を TFAction に渡す Action
-      - uses: suzuki-shunsuke/tfaction/js@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+      - name: Get or Create Drift issue
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
         with:
-          action: export-secrets
-          secrets: ${{ toJSON(secrets) }}
-
-      - run: tfaction get-or-create-drift-issue
-        # CHECK: You can remove this step if you don't use drift detection
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      # terraform init などの準備を行う Action
-      - uses: suzuki-shunsuke/tfaction/setup@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
-        with:
+          action: get-or-create-drift-issue
           github_token: ${{ steps.app-token.outputs.token }}
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      # terraform apply を実行する Action
-      - uses: suzuki-shunsuke/tfaction/apply@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
-        id: deploy
+      - name: Set up
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        id: setup
         with:
+          action: setup
           github_token: ${{ steps.app-token.outputs.token }}
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - uses: suzuki-shunsuke/tfaction/create-follow-up-pr@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+      - uses: aws-actions/configure-aws-credentials@acca2b1b2070338fb9fd1ca27ecee81d687e58e5 # v6.1.2
+        if: steps.setup.outputs.aws_assume_role_arn != ''
+        with:
+          role-to-assume: ${{ steps.setup.outputs.aws_assume_role_arn }}
+          role-session-name: ${{ steps.setup.outputs.aws_role_session_name }}
+          aws-region: ${{ steps.setup.outputs.aws_region }}
+
+      - name: GitHub Secrets
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        id: github-secrets
+        with:
+          action: output-github-secrets
+          github_secrets: ${{ toJSON(secrets) }}
+
+      - name: Terraform Init
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        with:
+          action: terraform-init
+          secrets: ${{ steps.github-secrets.outputs.secrets }}
+
+      - name: Apply
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        with:
+          action: apply
+          github_token: ${{ steps.app-token.outputs.token }}
+          secrets: ${{ steps.github-secrets.outputs.secrets }}
+
+      # Add this after apply
+      - name: Update PR Branch
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        if: always()
+        with:
+          action: update-pr-branch
+          github_token: ${{ steps.app-token.outputs.token }}
+
+      - name: Create Follow-up PR
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
         if: failure()
         with:
+          action: create-follow-up-pr
           github_token: ${{ steps.app-token.outputs.token }}
 
-      - uses: suzuki-shunsuke/tfaction/update-drift-issue@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+      - name: Update Drift Issue
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
         # CHECK: You can remove this step if you don't use drift detection
         if: always()
         with:
+          action: update-drift-issue
           status: ${{job.status}}
           github_token: ${{ steps.app-token.outputs.token }}
 
@@ -104,29 +129,23 @@ jobs:
           persist-credentials: false
 
       - id: app-token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
       - uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
         with:
-          aqua_version: v2.56.7
+          aqua_version: v2.59.0
         env:
           AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      # GitHub Secrets を TFAction に渡す Action
-      - uses: suzuki-shunsuke/tfaction/js@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+      - name: Set up
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        id: setup
         with:
-          action: export-secrets
-          secrets: ${{ toJSON(secrets) }}
-
-      # terraform init や必要な環境変数などの準備を行う Action
-      - uses: suzuki-shunsuke/tfaction/setup@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
-        with:
+          action: setup
           github_token: ${{ steps.app-token.outputs.token }}
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # Apply後にPRのplan artifactを取得（JSON版）
       - name: Download Plan Artifact

@@ -3,7 +3,7 @@ name: Update aqua-checksums.json
 on:
   workflow_call:
     secrets:
-      APP_ID:
+      CLIENT_ID:
         required: true
       PRIVATE_KEY:
         required: true
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: {}
     steps:
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         id: changes
         with:
           filters: |
@@ -43,15 +43,10 @@ jobs:
       - name: Install aqua
         uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
         with:
-          aqua_version: v2.56.7
+          aqua_version: v2.59.0
 
       - name: Fix aqua-checksums.json
         run: aqua upc -prune
-
-      - uses: suzuki-shunsuke/tfaction/js@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
-        id: global-config
-        with:
-          action: get-global-config
 
       - name: Check if aqua-checksums.json is changed
         id: diff
@@ -71,21 +66,16 @@ jobs:
             echo "changed=1" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit and push
-        if: steps.global-config.outputs.securefix_action_server_repository == '' && steps.diff.outputs.changed == '1'
-        uses: suzuki-shunsuke/commit-action@f12e2d628a4ab72dcefe7890ae07e8dbf1e201b9 # v0.1.1
+      - id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app_id: ${{secrets.APP_ID}}
-          app_private_key: ${{ secrets.PRIVATE_KEY }}
-          commit_message: "update: aqua-checksums.json"
-          files: aqua-checksums.json
+          client-id: ${{ secrets.CLIENT_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
 
       - name: Commit and push
-        if: steps.global-config.outputs.securefix_action_server_repository != '' && steps.diff.outputs.changed == '1'
-        uses: securefix-action/action@1301ea990d2c6db9e1bfb3078c925f0d95518080 # v0.5.5
+        if: steps.diff.outputs.changed == '1'
+        uses: suzuki-shunsuke/commit-action@06e3b49d4706498d325d29bd85adc82ecf2f5d8f # v1.0.0
         with:
-          app_id: ${{secrets.APP_ID}}
-          app_private_key: ${{ secrets.PRIVATE_KEY }}
+          github_token: ${{ steps.app-token.outputs.token }}
           commit_message: "update: aqua-checksums.json"
           files: aqua-checksums.json
-          server_repository: ${{ steps.global-config.outputs.securefix_action_server_repository }}

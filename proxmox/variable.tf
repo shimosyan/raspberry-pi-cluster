@@ -1,5 +1,6 @@
 variable "root_pw" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "pm_minimum_permission_check" {

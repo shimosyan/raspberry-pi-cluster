@@ -26,21 +26,17 @@ jobs:
           persist-credentials: false
 
       - id: app-token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
-      - uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
-        with:
-          aqua_version: v2.56.7
-        env:
-          AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      - run: tfaction pick-out-drift-issues
+      - name: Pick out Drift issue
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
         id: pick-out-drift-issues
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        with:
+          action: pick-out-drift-issues
+          github_token: ${{ steps.app-token.outputs.token }}
 
   detect-drift:
     timeout-minutes: 30
@@ -67,47 +63,66 @@ jobs:
           persist-credentials: false
 
       - id: app-token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
       - uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
         with:
-          aqua_version: v2.56.7
+          aqua_version: v2.59.0
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - uses: suzuki-shunsuke/tfaction/set-drift-env@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+      - uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
         with:
+          action: set-drift-env
           issue: ${{toJSON(matrix.issue)}}
 
-      # GitHub Secrets を TFAction に渡す Action
-      - uses: suzuki-shunsuke/tfaction/js@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+      - name: Set up
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        id: setup
         with:
-          action: export-secrets
-          secrets: ${{ toJSON(secrets) }}
-
-      - uses: suzuki-shunsuke/tfaction/setup@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
-        with:
+          action: setup
           github_token: ${{ steps.app-token.outputs.token }}
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - uses: suzuki-shunsuke/tfaction/test@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+      - uses: aws-actions/configure-aws-credentials@acca2b1b2070338fb9fd1ca27ecee81d687e58e5 # v6.1.2
+        if: steps.setup.outputs.aws_assume_role_arn != ''
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          role-to-assume: ${{ steps.setup.outputs.aws_assume_role_arn }}
+          role-session-name: ${{ steps.setup.outputs.aws_role_session_name }}
+          aws-region: ${{ steps.setup.outputs.aws_region }}
 
-      - uses: suzuki-shunsuke/tfaction/terraform-plan@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+      - name: GitHub Secrets
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        id: github-secrets
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          action: output-github-secrets
+          github_secrets: ${{ toJSON(secrets) }}
 
-      - uses: suzuki-shunsuke/tfaction/update-drift-issue@4562d910bbacecf384c8aeda25332284fcf05f38 # v1.20.1
+      - name: Terraform Init
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        with:
+          action: terraform-init
+          secrets: ${{ steps.github-secrets.outputs.secrets }}
+
+      - name: Test
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        with:
+          action: test
+          github_token: ${{ steps.app-token.outputs.token }}
+
+      - name: Plan
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
+        with:
+          action: plan
+          github_token: ${{ steps.app-token.outputs.token }}
+          secrets: ${{ steps.github-secrets.outputs.secrets }}
+
+      - name: Update Drift Issue
+        uses: suzuki-shunsuke/tfaction@5d2ecf0f4898a0b3ecc6b536e9a3f4691f46bfad # v2.0.0
         if: always()
         with:
+          action: update-drift-issue
           status: ${{job.status}}
           github_token: ${{ steps.app-token.outputs.token }}
