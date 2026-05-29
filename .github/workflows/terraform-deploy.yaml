@@ -65,7 +65,7 @@ jobs:
           action: setup
           github_token: ${{ steps.app-token.outputs.token }}
 
-      - uses: aws-actions/configure-aws-credentials@acca2b1b2070338fb9fd1ca27ecee81d687e58e5 # v6.1.2
+      - uses: aws-actions/configure-aws-credentials@99214aa6889fcddfa57764031d71add364327e59 # v6.1.3
         if: steps.setup.outputs.aws_assume_role_arn != ''
         with:
           role-to-assume: ${{ steps.setup.outputs.aws_assume_role_arn }}
