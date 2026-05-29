@@ -1,12 +1,15 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/suzuki-shunsuke/tfaction/refs/tags/v1.15.5/schema/tfaction-root.json
 
-plan_workflow_name: Pull Request
+plan_workflow_name: pull-request.yaml
+
+available_providers:
+  - name: registry.terraform.io/telmate/proxmox
 
 tflint:
   enabled: true
   fix: true
 trivy:
-  enabled: false
+  enabled: true
 
 drift_detection:
   enabled: true
