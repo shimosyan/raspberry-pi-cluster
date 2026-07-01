@@ -53,13 +53,13 @@ jobs:
           AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Get or Create Drift issue
-        uses: suzuki-shunsuke/tfaction@45bd9d6d7f1c396b5f1ca6f4d31dd8247e812539 # v2.0.3
+        uses: suzuki-shunsuke/tfaction@0627b0a1dfec9479a3fa73a5831be7979661b7eb # v2.0.4
         with:
           action: get-or-create-drift-issue
           github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Set up
-        uses: suzuki-shunsuke/tfaction@45bd9d6d7f1c396b5f1ca6f4d31dd8247e812539 # v2.0.3
+        uses: suzuki-shunsuke/tfaction@0627b0a1dfec9479a3fa73a5831be7979661b7eb # v2.0.4
         id: setup
         with:
           action: setup
@@ -73,20 +73,20 @@ jobs:
           aws-region: ${{ steps.setup.outputs.aws_region }}
 
       - name: GitHub Secrets
-        uses: suzuki-shunsuke/tfaction@45bd9d6d7f1c396b5f1ca6f4d31dd8247e812539 # v2.0.3
+        uses: suzuki-shunsuke/tfaction@0627b0a1dfec9479a3fa73a5831be7979661b7eb # v2.0.4
         id: github-secrets
         with:
           action: output-github-secrets
           github_secrets: ${{ toJSON(secrets) }}
 
       - name: Terraform Init
-        uses: suzuki-shunsuke/tfaction@45bd9d6d7f1c396b5f1ca6f4d31dd8247e812539 # v2.0.3
+        uses: suzuki-shunsuke/tfaction@0627b0a1dfec9479a3fa73a5831be7979661b7eb # v2.0.4
         with:
           action: terraform-init
           secrets: ${{ steps.github-secrets.outputs.secrets }}
 
       - name: Apply
-        uses: suzuki-shunsuke/tfaction@45bd9d6d7f1c396b5f1ca6f4d31dd8247e812539 # v2.0.3
+        uses: suzuki-shunsuke/tfaction@0627b0a1dfec9479a3fa73a5831be7979661b7eb # v2.0.4
         with:
           action: apply
           github_token: ${{ steps.app-token.outputs.token }}
@@ -94,21 +94,21 @@ jobs:
 
       # Add this after apply
       - name: Update PR Branch
-        uses: suzuki-shunsuke/tfaction@45bd9d6d7f1c396b5f1ca6f4d31dd8247e812539 # v2.0.3
+        uses: suzuki-shunsuke/tfaction@0627b0a1dfec9479a3fa73a5831be7979661b7eb # v2.0.4
         if: always()
         with:
           action: update-pr-branch
           github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Create Follow-up PR
-        uses: suzuki-shunsuke/tfaction@45bd9d6d7f1c396b5f1ca6f4d31dd8247e812539 # v2.0.3
+        uses: suzuki-shunsuke/tfaction@0627b0a1dfec9479a3fa73a5831be7979661b7eb # v2.0.4
         if: failure()
         with:
           action: create-follow-up-pr
           github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Update Drift Issue
-        uses: suzuki-shunsuke/tfaction@45bd9d6d7f1c396b5f1ca6f4d31dd8247e812539 # v2.0.3
+        uses: suzuki-shunsuke/tfaction@0627b0a1dfec9479a3fa73a5831be7979661b7eb # v2.0.4
         # CHECK: You can remove this step if you don't use drift detection
         if: always()
         with:
@@ -141,7 +141,7 @@ jobs:
           AQUA_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Set up
-        uses: suzuki-shunsuke/tfaction@45bd9d6d7f1c396b5f1ca6f4d31dd8247e812539 # v2.0.3
+        uses: suzuki-shunsuke/tfaction@0627b0a1dfec9479a3fa73a5831be7979661b7eb # v2.0.4
         id: setup
         with:
           action: setup
