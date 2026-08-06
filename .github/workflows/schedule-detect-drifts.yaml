@@ -32,7 +32,7 @@ jobs:
           private-key: ${{ secrets.PRIVATE_KEY }}
 
       - name: Pick out Drift issue
-        uses: suzuki-shunsuke/tfaction@d0d52eb8b2ff13d6e27ac9653d038df384e58827 # v2.0.5
+        uses: suzuki-shunsuke/tfaction@4fc32a7692e857bad031bc9e0324e7135c45742b # v2.0.6
         id: pick-out-drift-issues
         with:
           action: pick-out-drift-issues
@@ -74,13 +74,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - uses: suzuki-shunsuke/tfaction@d0d52eb8b2ff13d6e27ac9653d038df384e58827 # v2.0.5
+      - uses: suzuki-shunsuke/tfaction@4fc32a7692e857bad031bc9e0324e7135c45742b # v2.0.6
         with:
           action: set-drift-env
           issue: ${{toJSON(matrix.issue)}}
 
       - name: Set up
-        uses: suzuki-shunsuke/tfaction@d0d52eb8b2ff13d6e27ac9653d038df384e58827 # v2.0.5
+        uses: suzuki-shunsuke/tfaction@4fc32a7692e857bad031bc9e0324e7135c45742b # v2.0.6
         id: setup
         with:
           action: setup
@@ -94,33 +94,33 @@ jobs:
           aws-region: ${{ steps.setup.outputs.aws_region }}
 
       - name: GitHub Secrets
-        uses: suzuki-shunsuke/tfaction@d0d52eb8b2ff13d6e27ac9653d038df384e58827 # v2.0.5
+        uses: suzuki-shunsuke/tfaction@4fc32a7692e857bad031bc9e0324e7135c45742b # v2.0.6
         id: github-secrets
         with:
           action: output-github-secrets
           github_secrets: ${{ toJSON(secrets) }}
 
       - name: Terraform Init
-        uses: suzuki-shunsuke/tfaction@d0d52eb8b2ff13d6e27ac9653d038df384e58827 # v2.0.5
+        uses: suzuki-shunsuke/tfaction@4fc32a7692e857bad031bc9e0324e7135c45742b # v2.0.6
         with:
           action: terraform-init
           secrets: ${{ steps.github-secrets.outputs.secrets }}
 
       - name: Test
-        uses: suzuki-shunsuke/tfaction@d0d52eb8b2ff13d6e27ac9653d038df384e58827 # v2.0.5
+        uses: suzuki-shunsuke/tfaction@4fc32a7692e857bad031bc9e0324e7135c45742b # v2.0.6
         with:
           action: test
           github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Plan
-        uses: suzuki-shunsuke/tfaction@d0d52eb8b2ff13d6e27ac9653d038df384e58827 # v2.0.5
+        uses: suzuki-shunsuke/tfaction@4fc32a7692e857bad031bc9e0324e7135c45742b # v2.0.6
         with:
           action: plan
           github_token: ${{ steps.app-token.outputs.token }}
           secrets: ${{ steps.github-secrets.outputs.secrets }}
 
       - name: Update Drift Issue
-        uses: suzuki-shunsuke/tfaction@d0d52eb8b2ff13d6e27ac9653d038df384e58827 # v2.0.5
+        uses: suzuki-shunsuke/tfaction@4fc32a7692e857bad031bc9e0324e7135c45742b # v2.0.6
         if: always()
         with:
           action: update-drift-issue
