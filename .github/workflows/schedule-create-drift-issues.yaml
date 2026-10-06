@@ -30,7 +30,7 @@ jobs:
           private-key: ${{ secrets.PRIVATE_KEY }}
 
       - name: Create drift issues
-        uses: suzuki-shunsuke/tfaction@e71f80efd3d0eeaca305cb93267e7274d9c6f8c9 # v2.3.2
+        uses: suzuki-shunsuke/tfaction@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
         with:
           action: create-drift-issues
           github_token: ${{ steps.app-token.outputs.token }}
