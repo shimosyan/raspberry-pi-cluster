@@ -21,18 +21,18 @@ jobs:
       has_issues: ${{steps.pick-out-drift-issues.outputs.has_issues}}
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - id: app-token
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        uses: actions/create-github-app-token@v3.3.0
         with:
           client-id: ${{ secrets.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
       - name: Pick out Drift issue
-        uses: suzuki-shunsuke/tfaction@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
+        uses: suzuki-shunsuke/tfaction@v2.3.3
         id: pick-out-drift-issues
         with:
           action: pick-out-drift-issues
@@ -58,35 +58,35 @@ jobs:
         issue: ${{fromJSON(needs.pick-out-drift-issues.outputs.issues)}}
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - id: app-token
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        uses: actions/create-github-app-token@v3.3.0
         with:
           client-id: ${{ secrets.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
-      - uses: aquaproj/aqua-installer@611554c6f0137ba41c8dd15aca8bee82504ea461 # v4.1.1
+      - uses: aquaproj/aqua-installer@v4.1.1
         with:
           aqua_version: v2.65.2
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - uses: suzuki-shunsuke/tfaction@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
+      - uses: suzuki-shunsuke/tfaction@v2.3.3
         with:
           action: set-drift-env
           issue: ${{toJSON(matrix.issue)}}
 
       - name: Set up
-        uses: suzuki-shunsuke/tfaction@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
+        uses: suzuki-shunsuke/tfaction@v2.3.3
         id: setup
         with:
           action: setup
           github_token: ${{ steps.app-token.outputs.token }}
 
-      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+      - uses: aws-actions/configure-aws-credentials@v6.3.0
         if: steps.setup.outputs.aws_assume_role_arn != ''
         with:
           role-to-assume: ${{ steps.setup.outputs.aws_assume_role_arn }}
@@ -94,33 +94,33 @@ jobs:
           aws-region: ${{ steps.setup.outputs.aws_region }}
 
       - name: GitHub Secrets
-        uses: suzuki-shunsuke/tfaction@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
+        uses: suzuki-shunsuke/tfaction@v2.3.3
         id: github-secrets
         with:
           action: output-github-secrets
           github_secrets: ${{ toJSON(secrets) }}
 
       - name: Terraform Init
-        uses: suzuki-shunsuke/tfaction@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
+        uses: suzuki-shunsuke/tfaction@v2.3.3
         with:
           action: terraform-init
           secrets: ${{ steps.github-secrets.outputs.secrets }}
 
       - name: Test
-        uses: suzuki-shunsuke/tfaction@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
+        uses: suzuki-shunsuke/tfaction@v2.3.3
         with:
           action: test
           github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Plan
-        uses: suzuki-shunsuke/tfaction@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
+        uses: suzuki-shunsuke/tfaction@v2.3.3
         with:
           action: plan
           github_token: ${{ steps.app-token.outputs.token }}
           secrets: ${{ steps.github-secrets.outputs.secrets }}
 
       - name: Update Drift Issue
-        uses: suzuki-shunsuke/tfaction@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
+        uses: suzuki-shunsuke/tfaction@v2.3.3
         if: always()
         with:
           action: update-drift-issue
