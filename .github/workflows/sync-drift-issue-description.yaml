@@ -17,6 +17,6 @@ jobs:
 
     steps:
       - name: Sync drift issue description
-        uses: suzuki-shunsuke/tfaction@v2.3.3
+        uses: suzuki-shunsuke/tfaction@v2.3.4
         with:
           action: sync-drift-issue-description
