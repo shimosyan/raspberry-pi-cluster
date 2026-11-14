@@ -9,7 +9,7 @@ registries:
 - type: standard
   ref: v4.584.0 # renovate: depName=aquaproj/aqua-registry
 packages:
-  - name: hashicorp/terraform@v1.17.1
+  - name: hashicorp/terraform@v1.17.2
   - name: terraform-linters/tflint@v0.66.0
   - name: aquasecurity/trivy@v0.76.2
   - name: reviewdog/reviewdog@v0.21.3
