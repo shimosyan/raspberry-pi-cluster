@@ -11,26 +11,10 @@ concurrency:
   group: schedule-create-drift-issues
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   create-drift-issues:
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
-      - id: app-token
-        uses: actions/create-github-app-token@v3.3.0
-        with:
-          client-id: ${{ secrets.CLIENT_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-
-      - name: Create drift issues
-        uses: suzuki-shunsuke/tfaction@v2.3.5
-        with:
-          action: create-drift-issues
-          github_token: ${{ steps.app-token.outputs.token }}
+    uses: shimosyan/.github/.github/workflows/wc-schedule-create-drift-issues.yaml@bc3ed1de3b27f64e0adef836c21a808ce44624fc # main
+    secrets: inherit
