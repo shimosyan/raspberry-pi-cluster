@@ -4,15 +4,15 @@
 version: 'v0.0.3'
 workflows:
     '.github/workflows/auto-rebase-renovate-prs.yaml':
-        - 'actions/create-github-app-token@v3.3.0'
+        - 'actions/create-github-app-token@v3.4.0'
     '.github/workflows/pull-request.yaml': []
     '.github/workflows/schedule-create-drift-issues.yaml':
         - 'actions/checkout@v7.0.1'
-        - 'actions/create-github-app-token@v3.3.0'
+        - 'actions/create-github-app-token@v3.4.0'
         - 'suzuki-shunsuke/tfaction@v2.3.5'
     '.github/workflows/schedule-detect-drifts.yaml':
         - 'actions/checkout@v7.0.1'
-        - 'actions/create-github-app-token@v3.3.0'
+        - 'actions/create-github-app-token@v3.4.0'
         - 'aquaproj/aqua-installer@v4.1.1'
         - 'aws-actions/configure-aws-credentials@v6.3.0'
         - 'suzuki-shunsuke/tfaction@v2.3.5'
@@ -20,30 +20,30 @@ workflows:
         - 'suzuki-shunsuke/tfaction@v2.3.5'
     '.github/workflows/terraform-deploy.yaml':
         - 'actions/checkout@v7.0.1'
-        - 'actions/create-github-app-token@v3.3.0'
+        - 'actions/create-github-app-token@v3.4.0'
         - 'aquaproj/aqua-installer@v4.1.1'
         - 'aws-actions/configure-aws-credentials@v6.3.0'
         - 'suzuki-shunsuke/tfaction@v2.3.5'
     '.github/workflows/wc-document-pull-request.yaml':
         - 'actions/checkout@v7.0.1'
-        - 'actions/create-github-app-token@v3.3.0'
+        - 'actions/create-github-app-token@v3.4.0'
         - 'actions/setup-node@v7.1.0'
         - 'aquaproj/aqua-installer@v4.1.1'
     '.github/workflows/wc-terraform-pull-request.yaml':
         - 'actions/checkout@v7.0.1'
-        - 'actions/create-github-app-token@v3.3.0'
+        - 'actions/create-github-app-token@v3.4.0'
         - 'aquaproj/aqua-installer@v4.1.1'
         - 'aws-actions/configure-aws-credentials@v6.3.0'
         - 'dorny/paths-filter@v4.0.3'
         - 'suzuki-shunsuke/tfaction@v2.3.5'
     '.github/workflows/wc-update-actions-lock.yaml':
         - 'actions/checkout@v7.0.1'
-        - 'actions/create-github-app-token@v3.3.0'
+        - 'actions/create-github-app-token@v3.4.0'
         - 'dorny/paths-filter@v4.0.3'
         - 'suzuki-shunsuke/commit-action@v1.1.0'
     '.github/workflows/wc-update-aqua-checksums.yaml':
         - 'actions/checkout@v7.0.1'
-        - 'actions/create-github-app-token@v3.3.0'
+        - 'actions/create-github-app-token@v3.4.0'
         - 'aquaproj/aqua-installer@v4.1.1'
         - 'dorny/paths-filter@v4.0.3'
         - 'suzuki-shunsuke/commit-action@v1.1.0'
@@ -53,9 +53,9 @@ dependencies:
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
         owner_id: 44036562
         repo_id: 197814629
-    'actions/create-github-app-token@v3.3.0':
-        ref: 'v3.3.0'
-        commit: 'sha1-64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
+    'actions/create-github-app-token@v3.4.0':
+        ref: 'v3.4.0'
+        commit: 'sha1-f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc'
         owner_id: 44036562
         repo_id: 642580244
     'actions/setup-node@v7.1.0':
