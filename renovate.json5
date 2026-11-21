@@ -1,50 +1,6 @@
 {
-  '$schema': 'https://docs.renovatebot.com/renovate-schema.json',
-
+  '$schema': '[https://docs.renovatebot.com/renovate-schema.json](https://docs.renovatebot.com/renovate-schema.json)',
   extends: [
-    'config:recommended',
-    'helpers:pinGitHubActionDigests',
-    'github>aquaproj/aqua-renovate-config#2.15.0',
-    "github>suzuki-shunsuke/renovate-config:yaml-language-server#4.0.0",
+    'github>shimosyan/.github',
   ],
-
-  labels: [
-    'renovate',
-  ],
-
-  packageRules: [
-    {
-      matchUpdateTypes: [
-        'minor',
-        'patch',
-        'pin',
-        'digest',
-      ],
-      automerge: true,
-    },
-    {
-      matchDepTypes: [
-        'action',
-      ],
-      matchUpdateTypes: [
-        'minor',
-        'patch',
-        'pin',
-        'digest',
-      ],
-      pinDigests: true,
-      automerge: true,
-    }
-  ],
-
-  prHourlyLimit: 2,
-  prConcurrentLimit: 10,
-  branchConcurrentLimit: 20,
-
-  minimumReleaseAge: '3 days', // 公開後3日間は PR を作成しない
-
-  platformAutomerge: true,
-
-  timezone: 'Asia/Tokyo',
-  dependencyDashboard: true,
 }
