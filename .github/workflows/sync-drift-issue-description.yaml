@@ -12,4 +12,4 @@ jobs:
   sync-issue:
     if: |
       !github.event.issue.pull_request && startsWith(github.event.issue.title, 'Terraform Drift (') && endsWith(github.event.issue.title, ')') && github.actor == 'shimosyan'
-    uses: shimosyan/.github/.github/workflows/wc-sync-drift-issue-description.yaml@bc3ed1de3b27f64e0adef836c21a808ce44624fc # main
+    uses: shimosyan/.github/.github/workflows/wc-sync-drift-issue-description.yaml@d2c775546e84981c2b238f9a7fe69a7eae74cb37 # main
