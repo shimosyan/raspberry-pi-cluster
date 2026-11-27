@@ -16,5 +16,5 @@ permissions:
 
 jobs:
   create-drift-issues:
-    uses: shimosyan/.github/.github/workflows/wc-schedule-create-drift-issues.yaml@bc3ed1de3b27f64e0adef836c21a808ce44624fc # main
+    uses: shimosyan/.github/.github/workflows/wc-schedule-create-drift-issues.yaml@d2c775546e84981c2b238f9a7fe69a7eae74cb37 # main
     secrets: inherit
